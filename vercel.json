@@ -1,5 +1,6 @@
 {
-  "buildCommand": "",
-  "outputDirectory": ".",
-  "framework": "static"
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" },
+    { "src": "*.html", "use": "@vercel/static" }
+  ]
 }
