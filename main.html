@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TTSS Audit Test — Solar System Diagnostic</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #1a1d26;
+    --border: rgba(255,255,255,0.08);
+    --accent: #00d4aa;
+    --accent2: #3b82f6;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --font: 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+
+  /* ── Modal ── */
+  #modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; backdrop-filter: blur(4px);
+  }
+  #modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 2rem; width: 560px; max-width: 95vw;
+    max-height: 90vh; overflow-y: auto;
+  }
+  #modal h2 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.25rem; }
+  #modal .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+  .logo-icon { width: 760px; height: 760px; background: linear-gradient(135deg,#00d4aa,#3b82f6); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .logo-text { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; }
+  .logo-text span { color: var(--accent); }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+  input, select {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); padding: 10px 12px;
+    font-size: 0.9rem; width: 100%; outline: none; transition: border-color 0.2s;
+    font-family: var(--font);
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  select option { background: #1a1d26; }
+  .radio-group { display: flex; gap: 0.75rem; }
+  .radio-btn {
+    flex: 1; padding: 9px; border: 1px solid var(--border);
+    border-radius: 8px; background: var(--surface2); cursor: pointer;
+    text-align: center; font-size: 0.85rem; transition: all 0.2s; color: var(--muted);
+    user-select: none;
+  }
+  .radio-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.08); }
+  .submit-btn {
+    width: 100%; margin-top: 1.5rem; padding: 13px;
+    background: linear-gradient(135deg,#00d4aa,#3b82f6);
+    border: none; border-radius: 10px; color: #fff;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    letter-spacing: 0.3px; transition: opacity 0.2s; font-family: var(--font);
+  }
+  .submit-btn:hover { opacity: 0.88; }
+
+  /* ── Dashboard ── */
+  #dashboard { display: none; min-height: 100vh; }
+  header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem; display: flex; align-items: center;
+    justify-content: space-between; position: sticky; top: 0; z-index: 50;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .status-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3);
+    border-radius: 20px; padding: 4px 12px; font-size: 0.78rem; color: var(--accent);
+  }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+  .header-right { display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; color: var(--muted); }
+
+  main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+  .hero {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap;
+  }
+  .hero-left h1 { font-size: 1.3rem; font-weight: 600; }
+  .hero-left p { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
+  .signal-group { display: flex; align-items: center; gap: 1.5rem; }
+  .signal-item { text-align: center; }
+  .signal-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .wifi-bars { display: flex; align-items: flex-end; gap: 3px; height: 22px; justify-content: center; }
+  .wifi-bar { width: 5px; border-radius: 2px; background: var(--accent); }
+  .wifi-bar:nth-child(1){height:6px} .wifi-bar:nth-child(2){height:10px} .wifi-bar:nth-child(3){height:15px} .wifi-bar:nth-child(4){height:22px}
+  .signal-val { font-size: 0.75rem; color: var(--accent); margin-top: 2px; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; position: relative; overflow: hidden; }
+  .stat-card::before { content:''; position:absolute; top:0;right:0;width:60px;height:60px; border-radius: 0 12px 0 60px; opacity: 0.06; }
+  .stat-card.green::before { background: var(--accent); }
+  .stat-card.blue::before  { background: var(--accent2); }
+  .stat-card.warn::before  { background: var(--warn); }
+  .stat-card.red::before   { background: var(--danger); }
+  .stat-icon  { font-size: 1.1rem; margin-bottom: 0.6rem; }
+  .stat-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-val   { font-size: 1.6rem; font-weight: 700; line-height: 1.2; margin: 4px 0; }
+  .stat-card.green .stat-val { color: var(--accent); }
+  .stat-card.blue  .stat-val { color: var(--accent2); }
+  .stat-card.warn  .stat-val { color: var(--warn); }
+  .stat-card.red   .stat-val { color: var(--danger); }
+  .stat-sub   { font-size: 0.75rem; color: var(--muted); }
+  .stat-badge { display: inline-block; font-size: 0.68rem; padding: 2px 7px; border-radius: 10px; margin-top: 4px; }
+  .badge-up   { background: rgba(0,212,170,0.12); color: var(--accent); }
+  .badge-down { background: rgba(239,68,68,0.12); color: var(--danger); }
+
+  .chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .chart-title  { font-size: 0.85rem; font-weight: 600; }
+  .chart-badge  { font-size: 0.7rem; color: var(--muted); background: var(--surface2); padding: 3px 8px; border-radius: 6px; }
+
+  .house-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+    display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;
+  }
+  .house-wrap { flex:1; min-width:280px; display:flex; flex-direction:column; align-items:center; gap:0.75rem; }
+  .house-info { flex:1; min-width:200px; }
+  .house-info h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; }
+  .info-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.83rem; }
+  .info-row:last-child { border:none; }
+  .info-key { color: var(--muted); }
+  .info-val  { font-weight: 500; }
+  .info-val.good { color: var(--accent); }
+  .info-val.warn { color: var(--warn); }
+  .info-val.bad  { color: var(--danger); }
+
+  .billing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+  .billing-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
+  .ratio-bar-wrap { margin: 1rem 0; }
+  .ratio-label { display:flex; justify-content:space-between; font-size:0.75rem; color:var(--muted); margin-bottom:6px; }
+  .ratio-bar-bg   { background: rgba(255,255,255,0.07); border-radius:6px; height:10px; overflow:hidden; }
+  .ratio-bar-fill { height:100%; border-radius:6px; }
+
+  #ai-panel {
+    background: var(--surface); border: 1px solid rgba(0,212,170,0.25);
+    border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;
+  }
+  .ai-header { display:flex; align-items:center; gap:10px; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .ai-icon  { width:32px; height:32px; background:linear-gradient(135deg,#00d4aa22,#3b82f622); border:1px solid rgba(0,212,170,0.3); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .ai-title { font-size:0.95rem; font-weight:600; }
+  .ai-sub   { font-size:0.75rem; color:var(--muted); }
+  #ai-output { font-size:0.9rem; line-height:1.8; color:#c8ccd8; min-height:80px; }
+
+  .ai-loading { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:0.85rem; }
+  .dot-spin { display:flex; gap:4px; }
+  .dot-spin span { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:dotbounce 1.2s infinite; }
+  .dot-spin span:nth-child(2){animation-delay:.2s} .dot-spin span:nth-child(3){animation-delay:.4s}
+  @keyframes dotbounce{0%,80%,100%{opacity:0.2}40%{opacity:1}}
+
+  .ai-section { margin-top:1rem; }
+  .ai-section h4 { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); margin-bottom:0.4rem; font-weight:600; }
+  .ai-section p  { font-size:0.875rem; color:#b0b8cc; line-height:1.75; }
+  .highlight-box { background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.2); border-radius:8px; padding:0.9rem 1rem; margin-top:1rem; font-size:0.85rem; color:#d4aa60; line-height:1.7; }
+  .cta-battery   { background:linear-gradient(135deg,rgba(0,212,170,0.1),rgba(59,130,246,0.1)); border:1px solid rgba(0,212,170,0.25); border-radius:10px; padding:1rem 1.2rem; margin-top:1.2rem; display:flex; align-items:center; gap:1rem; }
+  .cta-battery .bat-icon { font-size:1.8rem; }
+  .cta-battery .bat-text { font-size:0.85rem; line-height:1.6; color:#c8ccd8; }
+  .cta-battery .bat-text strong { color:var(--accent); }
+
+  @media(max-width:700px){
+    .stat-grid  { grid-template-columns:1fr 1fr; }
+    .chart-grid { grid-template-columns:1fr; }
+    .billing-grid { grid-template-columns:1fr; }
+    .form-grid  { grid-template-columns:1fr; }
+    .form-group.full { grid-column:1; }
+    main { padding:1rem; }
+    header { padding:0.75rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     INTAKE MODAL
+════════════════════════════════════════════ -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;margin-bottom:1.5rem">
+
+      <img src="images/ttss-image.png" 
+           alt="TTSS Logo" 
+           style="width: 100%; max-width: 380px; height: auto; display: block; border-radius: 12px; margin-bottom: 1.5rem"/>
+
+      <div class="logo-text" style="text-align:center;font-size:2.6rem">Top Tier Solar Solutions<span> - Audit Test</span></div>
+    </div>
+    <h2>System Intake Form</h2>
+    <p class="sub">Enter your solar system details to run a full diagnostic analysis.</p>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Utility Company</label>
+        <input type="text" id="utility" placeholder="e.g. PG&E, Duke Energy" />
+      </div>
+      <div class="form-group">
+        <label>State</label>
+        <select id="state">
+          <option value="">Select state...</option>
+          <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
+          <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
+          <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+          <option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option>
+          <option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option>
+          <option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+          <option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option>
+          <option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option>
+          <option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+          <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option>
+          <option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option>
+          <option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option>
+          <option>Wisconsin</option><option>Wyoming</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Number of Panels</label>
+        <input type="number" id="panels" placeholder="e.g. 24" min="1" max="100"/>
+      </div>
+      <div class="form-group">
+        <label>System Size (kW)</label>
+        <input type="number" id="systemkw" placeholder="e.g. 8.4" step="0.1"/>
+      </div>
+      <div class="form-group full">
+        <label>Inverter Brand</label>
+        <div class="radio-group" id="inverter-group">
+          <div class="radio-btn active" data-val="SolarEdge">SolarEdge</div>
+          <div class="radio-btn" data-val="Enphase">Enphase</div>
+          <div class="radio-btn" data-val="Other">Other</div>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Battery Installed?</label>
+        <div class="radio-group" id="battery-group">
+          <div class="radio-btn active" data-val="No">No Battery</div>
+          <div class="radio-btn" data-val="Yes">Yes — Battery Present</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Average Monthly Power Bill ($)</label>
+        <input type="number" id="bill" placeholder="e.g. 180" min="0"/>
+      </div>
+      <div class="form-group">
+        <label>Power Made This Month (kWh)</label>
+        <input type="number" id="madeKwh" placeholder="e.g. 620" min="0"/>
+      </div>
+      <div class="form-group">
+        <label>Square Footage of Home</label>
+        <input type="number" id="sqft" placeholder="e.g. 2200" min="100"/>
+      </div>
+      <div class="form-group">
+        <label>Year Solar Was Installed</label>
+        <input type="number" id="installDate" placeholder="e.g. 2020" min="2000" max="2026"/>
+      </div>
+      <div class="form-group full">
+        <label>Solar Installer Company</label>
+        <input type="text" id="installer" placeholder="e.g. SunPower, Tesla Energy, local company..." />
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="launchDashboard()">Run Diagnostic Analysis →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     DASHBOARD
+════════════════════════════════════════════ -->
+<div id="dashboard">
+  <header>
+    <div class="header-left">
+      <div style="display:flex;align-items:center;gap:12px;margin:0">
+
+        <img src="images/ttss-image.png" 
+           alt="TTSS Logo" 
+           style="width: 100%; max-width: 210px; height: auto; display: block; border-radius: 12px; margin-bottom: .1rem"/>
+
+        <div class="logo-text" style="font-size:1rem;margin:0">Top Tier Solar Solutions<span> - Audit Test</span></div>
+      </div>
+      <div class="status-pill" style="margin-left:1rem"><div class="pulse"></div><span>Live Monitoring</span></div>
+    </div>
+    <div class="header-right">
+      <span id="header-info"></span>
+      <span id="live-time"></span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero bar -->
+    <div class="hero">
+      <div class="hero-left">
+        <h1 id="hero-title">System Overview</h1>
+        <p id="hero-sub">Diagnostic report generated today</p>
+      </div>
+      <div class="signal-group">
+        <div class="signal-item">
+          <div class="signal-label">Inverter WiFi</div>
+          <div class="wifi-bars">
+            <div class="wifi-bar"></div><div class="wifi-bar"></div>
+            <div class="wifi-bar"></div><div class="wifi-bar"></div>
+          </div>
+          <div class="signal-val">Strong</div>
+        </div>
+        <div class="signal-item">
+          <div class="signal-label">Grid Sync</div>
+          <div style="font-size:1.4rem;color:var(--accent);margin:2px 0">✓</div>
+          <div class="signal-val">Online</div>
+        </div>
+        <div class="signal-item">
+          <div class="signal-label">API Status</div>
+          <div style="font-size:1.4rem;color:var(--accent);margin:2px 0">●</div>
+          <div class="signal-val">Active</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card green">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-label">Production This Month</div>
+        <div class="stat-val" id="s-production">—</div>
+        <div class="stat-sub">kWh generated</div>
+        <span class="stat-badge badge-up">↑ vs last month</span>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon">🏠</div>
+        <div class="stat-label">Home Consumption</div>
+        <div class="stat-val" id="s-consumption">—</div>
+        <div class="stat-sub">kWh used</div>
+        <span class="stat-badge badge-down">↑ above system output</span>
+      </div>
+      <div class="stat-card warn">
+        <div class="stat-icon">💸</div>
+        <div class="stat-label">Current Utility Bill</div>
+        <div class="stat-val" id="s-bill">—</div>
+        <div class="stat-sub">monthly average</div>
+        <span class="stat-badge badge-down">↑ Net billing shift</span>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">🔋</div>
+        <div class="stat-label">Battery Storage</div>
+        <div class="stat-val" id="s-battery">NONE</div>
+        <div class="stat-sub">No storage detected</div>
+        <span class="stat-badge badge-down">⚠ System incomplete</span>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Monthly Production vs. Consumption (kWh)</div>
+          <div class="chart-badge">12 months</div>
+        </div>
+        <canvas id="prodChart" height="200"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Grid Export vs. Import</div>
+          <div class="chart-badge">This month</div>
+        </div>
+        <canvas id="gridChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- House visual -->
+    <div class="house-section">
+      <div class="house-wrap">
+        <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">System Visualization</div>
+        <svg id="house-svg" viewBox="0 0 300 200" width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="200" fill="#0d1117" rx="10"/>
+          <rect x="0" y="155" width="300" height="45" fill="#161b22"/>
+          <rect x="60" y="95" width="180" height="70" fill="#1e2430" stroke="#2a3040" stroke-width="1.5" rx="3"/>
+          <polygon points="40,98 150,30 260,98" fill="#1a2035" stroke="#2a3540" stroke-width="1.5"/>
+          <rect x="128" y="125" width="28" height="40" fill="#0f1520" stroke="#2a3040" stroke-width="1" rx="2"/>
+          <circle cx="153" cy="147" r="2.5" fill="#3b4a60"/>
+          <rect x="75" y="110" width="30" height="22" fill="#0f1520" stroke="#2a3040" stroke-width="1" rx="2"/>
+          <line x1="90" y1="110" x2="90" y2="132" stroke="#1a2535" stroke-width="0.5"/>
+          <line x1="75" y1="121" x2="105" y2="121" stroke="#1a2535" stroke-width="0.5"/>
+          <rect x="195" y="110" width="30" height="22" fill="#0f1520" stroke="#2a3040" stroke-width="1" rx="2"/>
+          <line x1="210" y1="110" x2="210" y2="132" stroke="#1a2535" stroke-width="0.5"/>
+          <line x1="195" y1="121" x2="225" y2="121" stroke="#1a2535" stroke-width="0.5"/>
+          <g id="panels-group"></g>
+          <circle cx="255" cy="30" r="14" fill="#f59e0b" opacity="0.9"/>
+          <g stroke="#f59e0b" stroke-width="1.5" opacity="0.5">
+            <line x1="255" y1="10" x2="255" y2="5"/>
+            <line x1="255" y1="50" x2="255" y2="55"/>
+            <line x1="275" y1="30" x2="280" y2="30"/>
+            <line x1="235" y1="30" x2="230" y2="30"/>
+            <line x1="269" y1="16" x2="273" y2="12"/>
+            <line x1="241" y1="44" x2="237" y2="48"/>
+          </g>
+          <line x1="150" y1="68" x2="150" y2="93" stroke="#00d4aa" stroke-width="1.5" stroke-dasharray="4,3">
+            <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="1s" repeatCount="indefinite"/>
+          </line>
+          <polygon points="145,89 150,97 155,89" fill="#00d4aa"/>
+          <g id="battery-warning">
+            <rect x="8" y="155" width="60" height="22" fill="rgba(239,68,68,0.1)" stroke="rgba(239,68,68,0.4)" stroke-width="0.75" rx="4"/>
+            <text x="38" y="170" text-anchor="middle" fill="#ef4444" font-size="8" font-family="sans-serif">No Battery</text>
+          </g>
+          <rect x="8" y="10" width="70" height="30" fill="rgba(0,212,170,0.08)" stroke="rgba(0,212,170,0.25)" stroke-width="0.75" rx="4"/>
+          <text x="43" y="23" text-anchor="middle" fill="#00d4aa" font-size="7.5" font-family="sans-serif" font-weight="600">PRODUCING</text>
+          <text id="svg-kwh" x="43" y="35" text-anchor="middle" fill="#00d4aa" font-size="9" font-family="sans-serif">— kWh/day</text>
+        </svg>
+        <div style="font-size:0.72rem;color:var(--muted);text-align:center">Live system visualization — panels adjust to count</div>
+      </div>
+
+      <div class="house-info">
+        <h3>System Details</h3>
+        <div class="info-row"><span class="info-key">Installer</span><span class="info-val" id="d-installer">—</span></div>
+        <div class="info-row"><span class="info-key">Inverter Brand</span><span class="info-val" id="d-inverter">—</span></div>
+        <div class="info-row"><span class="info-key">Panels</span><span class="info-val" id="d-panels">—</span></div>
+        <div class="info-row"><span class="info-key">System Size</span><span class="info-val" id="d-kw">—</span></div>
+        <div class="info-row"><span class="info-key">Home Sq. Footage</span><span class="info-val" id="d-sqft">—</span></div>
+        <div class="info-row"><span class="info-key">Install Date</span><span class="info-val" id="d-install">—</span></div>
+        <div class="info-row"><span class="info-key">Battery Storage</span><span class="info-val bad" id="d-batt">Not Installed</span></div>
+        <div class="info-row"><span class="info-key">Utility Company</span><span class="info-val" id="d-utility">—</span></div>
+        <div class="info-row"><span class="info-key">State</span><span class="info-val" id="d-state">—</span></div>
+      </div>
+    </div>
+
+    <!-- Net billing -->
+    <div class="billing-grid">
+      <div class="billing-card">
+        <div class="chart-header">
+          <div class="chart-title">⚠️ Net Billing Ratio Analysis</div>
+        </div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;line-height:1.6">Your utility is applying asymmetric rates to solar exports vs. imports — a growing trend across U.S. states.</p>
+        <div class="ratio-bar-wrap">
+          <div class="ratio-label"><span>Export credit rate</span><span style="color:var(--accent)" id="export-rate">—¢/kWh</span></div>
+          <div class="ratio-bar-bg"><div class="ratio-bar-fill" id="export-bar" style="width:40%;background:var(--accent)"></div></div>
+        </div>
+        <div class="ratio-bar-wrap">
+          <div class="ratio-label"><span>Import (retail) rate</span><span style="color:var(--danger)" id="import-rate">—¢/kWh</span></div>
+          <div class="ratio-bar-bg"><div class="ratio-bar-fill" id="import-bar" style="width:85%;background:var(--danger)"></div></div>
+        </div>
+        <div style="margin-top:0.75rem;padding:0.7rem;background:rgba(245,158,11,0.07);border-radius:8px;border:1px solid rgba(245,158,11,0.2)">
+          <p style="font-size:0.78rem;color:#d4aa60;line-height:1.6">Your utility company is charging you <strong id="ratio-text" style="color:var(--warn)">—</strong> of retail rate for the power you produce. This is what you receive as credit for solar exports.</p>
+        </div>
+      </div>
+      <div class="billing-card">
+        <div class="chart-header">
+          <div class="chart-title">Bill Projection with Battery</div>
+        </div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;line-height:1.6">With battery storage, power bills typically drop to $0–$15/month (connection charge only).</p>
+        <canvas id="savingsChart" height="180"></canvas>
+      </div>
+    </div>
+
+    <!-- AI panel -->
+    <div id="ai-panel">
+      <div class="ai-header">
+        <div class="ai-icon">🤖</div>
+        <div>
+          <div class="ai-title">AI Diagnostic Analysis</div>
+          <div class="ai-sub">Powered by Claude — analyzing your system data</div>
+        </div>
+      </div>
+      <div id="ai-output">
+        <div class="ai-loading">
+          <div class="dot-spin"><span></span><span></span><span></span></div>
+          <span>Running analysis on your system data...</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+  /* ── Radio toggles ── */
+  document.querySelectorAll('#inverter-group .radio-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('#inverter-group .radio-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+  });
+  document.querySelectorAll('#battery-group .radio-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('#battery-group .radio-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+  });
+
+  function getSelected(groupId) {
+    return document.querySelector(`#${groupId} .radio-btn.active`)?.dataset.val || '';
+  }
+
+  /* ── Launch ── */
+  function launchDashboard() {
+    const formData = {
+      utility:     document.getElementById('utility').value    || 'Unknown Utility',
+      state:       document.getElementById('state').value      || 'Unknown State',
+      panels:      parseInt(document.getElementById('panels').value)   || 20,
+      systemkw:    parseFloat(document.getElementById('systemkw').value) || 7.0,
+      inverter:    getSelected('inverter-group') || 'SolarEdge',
+      battery:     getSelected('battery-group')  || 'No',
+      bill:        parseFloat(document.getElementById('bill').value)    || 150,
+      madeKwh:     parseFloat(document.getElementById('madeKwh').value) || 500,
+      sqft:        parseInt(document.getElementById('sqft').value)      || 2000,
+      installer:   document.getElementById('installer').value  || 'Unknown Installer',
+      installDate: document.getElementById('installDate').value || ''
+    };
+    document.getElementById('modal-overlay').style.display = 'none';
+    document.getElementById('dashboard').style.display     = 'block';
+    populateDashboard(formData);
+  }
+
+  /* ── Populate ── */
+  function populateDashboard(d) {
+    const consumption = Math.round(d.madeKwh * 1.28);
+    const yearsInstalled = d.installDate
+      ? (new Date().getFullYear() - new Date(d.installDate + 'T12:00:00').getFullYear())
+      : 'unknown';
+
+    document.getElementById('hero-title').textContent = `${d.panels}-Panel ${d.systemkw} kW System — ${d.state}`;
+    document.getElementById('hero-sub').textContent   = `${d.utility} · ${d.inverter} Inverter · Diagnostic generated ${new Date().toLocaleDateString()}`;
+    document.getElementById('header-info').textContent = `${d.installer} · ${d.panels} panels`;
+
+    document.getElementById('s-production').textContent = d.madeKwh + ' kWh';
+    document.getElementById('s-consumption').textContent = consumption + ' kWh';
+    document.getElementById('s-bill').textContent       = '$' + d.bill;
+    document.getElementById('s-battery').textContent    = d.battery === 'Yes' ? 'Installed' : 'NONE';
+
+    document.getElementById('d-installer').textContent = d.installer;
+    document.getElementById('d-inverter').textContent  = d.inverter;
+    document.getElementById('d-panels').textContent    = d.panels + ' panels';
+    document.getElementById('d-kw').textContent        = d.systemkw + ' kW';
+    document.getElementById('d-sqft').textContent      = d.sqft.toLocaleString() + ' sq ft';
+    document.getElementById('d-install').textContent   = d.installDate
+      ? new Date(d.installDate + 'T12:00:00').toLocaleDateString() : '—';
+    document.getElementById('d-batt').textContent      = d.battery === 'Yes' ? 'Installed' : 'Not Installed';
+    document.getElementById('d-batt').className        = 'info-val ' + (d.battery === 'Yes' ? 'good' : 'bad');
+    document.getElementById('d-utility').textContent   = d.utility;
+    document.getElementById('d-state').textContent     = d.state;
+    document.getElementById('svg-kwh').textContent     = Math.round(d.madeKwh / 30) + ' kWh/day';
+
+    /* Net billing rates */
+    const exportCents = Math.round(8  + Math.random() * 6);
+    const importCents = Math.round(22 + Math.random() * 12);
+    document.getElementById('export-rate').textContent = exportCents + '¢/kWh';
+    document.getElementById('import-rate').textContent = importCents + '¢/kWh';
+    document.getElementById('export-bar').style.width  = Math.round(exportCents / importCents * 100) + '%';
+    document.getElementById('ratio-text').textContent  = Math.round(exportCents / importCents * 100) + '%';
+
+    drawPanels(d.panels);
+    drawCharts(d);
+    setLiveTime();
+    setInterval(setLiveTime, 1000);
+    runAIAnalysis(d, yearsInstalled);
+  }
+
+  /* ── Solar panel SVG ── */
+  function drawPanels(n) {
+    const g = document.getElementById('panels-group');
+    g.innerHTML = '';
+    const maxPanels = Math.min(n, 18);
+    const cols = Math.min(maxPanels, 6);
+    const rows = Math.ceil(maxPanels / cols);
+    const pW = 22, pH = 11, gapX = 4, gapY = 6;
+    const roofCenterX = 150;
+    const totalW = cols * pW + (cols - 1) * gapX;
+    const startX = roofCenterX - totalW / 2;
+    const startY = 42;
+    for (let i = 0; i < maxPanels; i++) {
+      const col = i % cols, row = Math.floor(i / cols);
+      const cx = startX + col * (pW + gapX) + pW / 2;
+      const cy = startY + row * (pH + gapY) + pH / 2;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', cx - pW / 2);
+      rect.setAttribute('y', cy - pH / 2);
+      rect.setAttribute('width', pW);
+      rect.setAttribute('height', pH);
+      rect.setAttribute('rx', '1.5');
+      rect.setAttribute('fill', '#1a3a5c');
+      rect.setAttribute('stroke', '#00d4aa');
+      rect.setAttribute('stroke-width', '0.75');
+      g.appendChild(rect);
+    }
+  }
+
+  /* ── Charts ── */
+  function drawCharts(d) {
+    const months = ['Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May'];
+    const seasonal = [1.30,1.35,1.20,1.00,0.80,0.60,0.65,0.75,0.90,1.05,1.15,1.25];
+    const prod = months.map((_,i) => Math.round(d.madeKwh * seasonal[i] * (0.92 + Math.random() * 0.16)));
+    const cons = prod.map(p => Math.round(p * 1.2 + Math.random() * 80 - 40));
+
+    new Chart(document.getElementById('prodChart'), {
+      type: 'bar',
+      data: {
+        labels: months,
+        datasets: [
+          { label: 'Production', data: prod, backgroundColor: 'rgba(0,212,170,0.5)', borderColor: '#00d4aa', borderWidth: 1.5, borderRadius: 4 },
+          { label: 'Consumption', data: cons, backgroundColor: 'rgba(59,130,246,0.3)', borderColor: '#3b82f6', borderWidth: 1.5, type: 'line', fill: false, tension: 0.4, pointRadius: 3 }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#6b7280', font: { size: 11 } } } },
+        scales: {
+          x: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+        }
+      }
+    });
+
+    const exported = Math.round(d.madeKwh * 0.35);
+    const imported = Math.round(d.madeKwh * 0.45);
+    new Chart(document.getElementById('gridChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Self-Consumed','Exported to Grid','Imported from Grid'],
+        datasets: [{ data: [d.madeKwh - exported, exported, imported], backgroundColor: ['rgba(0,212,170,0.7)','rgba(59,130,246,0.6)','rgba(239,68,68,0.6)'], borderColor: ['#00d4aa','#3b82f6','#ef4444'], borderWidth: 1.5 }]
+      },
+      options: { responsive: true, plugins: { legend: { labels: { color: '#6b7280', font: { size: 10 } }, position: 'bottom' } } }
+    });
+
+    const billsBase = [d.bill*1.15,d.bill*1.20,d.bill*0.90,d.bill*0.70,d.bill*0.60,d.bill*0.55,d.bill*0.60,d.bill*0.80,d.bill*1.00,d.bill*0.95,d.bill*0.85,d.bill];
+    const billsWithBatt = billsBase.map(b => Math.max(8, b * 0.25 + Math.random() * 15));
+    new Chart(document.getElementById('savingsChart'), {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [
+          { label: 'Without Battery (Current)', data: billsBase.map(b => Math.round(b)), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.08)', fill: true, tension: 0.4, pointRadius: 2, borderWidth: 2 },
+          { label: 'With Battery ($0-15/mo)', data: billsWithBatt.map(b => Math.round(b)), borderColor: '#00d4aa', backgroundColor: 'rgba(0,212,170,0.08)', fill: true, tension: 0.4, pointRadius: 2, borderWidth: 2, borderDash: [4,3] }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#6b7280', font: { size: 10 } }, position: 'bottom' } },
+        scales: {
+          x: { ticks: { color: '#6b7280', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: { ticks: { color: '#6b7280', font: { size: 9 }, callback: v => '$' + v }, grid: { color: 'rgba(255,255,255,0.04)' } }
+        }
+      }
+    });
+  }
+
+  /* ── Live clock ── */
+  function setLiveTime() {
+    document.getElementById('live-time').textContent = new Date().toLocaleTimeString();
+  }
+
+  /* ── AI Analysis ── */
+  async function runAIAnalysis(d, yearsInstalled) {
+    // ⬇️  REPLACE THIS PROMPT WITH YOUR OWN WHEN READY
+    const prompt = `You are a senior solar energy consultant and diagnostic expert. A homeowner has submitted their solar system data for analysis. Your job is to deliver a clear, compelling, and personalized diagnostic report that identifies exactly why they are still paying a power bill — and builds a strong, emotionally resonant case for why adding battery storage is the logical next step. If no power bill (<$20-30/month) is detected, pivot to explaining how a battery can protect against future rate increases, provide backup power during outages, and maximize their return on investment.
+
+Use their actual numbers throughout. Be direct, specific, and authoritative. Do not be generic.
+
+Homeowner System Data:
+- Utility Company: ${d.utility}
+- State: ${d.state}
+- Inverter Brand: ${d.inverter}
+- Number of Panels: ${d.panels}
+- System Size: ${d.systemkw} kW
+- Battery Storage: ${d.battery}
+- Average Monthly Power Bill: $${d.bill}
+- Power Generated This Month: ${d.madeKwh} kWh
+- Home Square Footage: ${d.sqft} sq ft
+- Solar Installer: ${d.installer}
+- Years Since Installation: ${yearsInstalled}
+
+Structure your response in the following sections:
+
+---
+
+**WHY YOU'RE STILL GETTING A BILL**
+Explain in plain language why a solar-only system without battery storage still results in a power bill. Cover: daytime-only production windows, nighttime grid dependency, and the fact that excess energy exported to the grid is sold at wholesale rates but bought back at full retail rates. Use their specific kWh and bill numbers to make this concrete.
+
+---
+
+**THE NET BILLING TRAP: ${d.utility} & ${d.state}**
+Explain the shift happening across the U.S. from full net metering to net billing — and what it specifically means for a customer of ${d.utility} in ${d.state}. Describe how utilities are reducing export credit rates (sometimes to as low as 3–5 cents/kWh) while charging 20–35 cents/kWh for power pulled from the grid. Name this as a structural, permanent shift — not a temporary policy. Make clear that this ratio will only get worse over time, not better, and that every kWh they export is money they are leaving on the table.
+
+---
+
+**THE ENERGY CRISIS COMING FOR YOUR BILL**
+This section should feel urgent. Cover:
+- The explosion of AI data centers across the U.S. requiring massive amounts of electricity 24/7 — companies like Microsoft, Google, Amazon, and Meta are building gigawatt-scale facilities that are straining regional grids
+- How utilities are already requesting rate increases to fund grid upgrades to support this demand
+- The historical trend of utility rates rising 3–5% per year — and how that compounds over a 10–25 year solar loan or ownership period
+- Climate-driven demand spikes (heat waves, cold snaps) that are increasing peak demand charges
+- Specifically call out ${d.state} and ${d.utility} if rate cases or grid stress is known there
+- Project what their $${d.bill} monthly bill could look like in 5, 10, and 15 years at a 4% annual increase rate — show the math
+
+---
+
+**ON-GRID VS. OFF-GRID: WHERE THEY STAND NOW**
+Explain the spectrum: fully on-grid (where they are now), hybrid with battery (where they should be), and fully off-grid. Be clear that a battery doesn't require going fully off-grid — it creates a "grid-independent bubble" for their home. Explain that with a properly sized battery they can cover nighttime usage, ride out outages, and avoid peak-rate grid power entirely. Compare the vulnerability of their current setup (complete grid dependence after sundown) to a battery-backed system (energy independence during the hours when power is most expensive).
+
+---
+
+**CURRENT SOLAR INSTALLER**
+If the installer went out of business, call it out and indentify the risk of having an unsupported system. If the installer is still in business, acknowledge that they made a good choice on panels/inverter but that the industry has evolved and battery storage is now the critical missing piece.
+
+**WHAT A BATTERY ACTUALLY CHANGES FOR THEM**
+Make this personal and specific to their numbers. Cover:
+- Storing their own ${d.madeKwh} kWh of production instead of gifting it to ${d.utility} at a fraction of retail value
+- Eliminating or near-eliminating their $${d.bill}/month bill
+- Protection from outages — especially relevant as grid reliability degrades under rising demand
+- Locking in their energy cost now before rates climb further
+- Increasing home resale value
+- The irony: they already made the hard decision (going solar) — a battery is the final 20% that delivers 80% of the benefit
+
+---
+
+**BOTTOM LINE**
+Close with a direct, confident summary. Do not hedge. Tell them clearly: their solar system is working, but it is incomplete. The grid is changing against them. Rates are rising. AI and industrial demand are accelerating the problem. A battery storage system transforms their solar investment from a bill-reducer into true energy independence. Every month they wait is another month paying ${d.utility} for power their panels already made.
+
+Tone: confident, informed, slightly urgent — like a trusted advisor who genuinely wants them to stop losing money. Not salesy. Use data and logic to create urgency, not hype.`;
+    try {
+    const resp = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+    });
+    
+    const data = await resp.json();
+
+    // Handle explicit API errors cleanly in the UI
+    if (!resp.ok || data.error) {
+        document.getElementById('ai-output').innerHTML = 
+        `<p style="color:var(--danger);font-size:0.85rem;margin-bottom:0.5rem;">⚠️ API Processing Error</p>
+        <div class="highlight-box" style="background:rgba(239,68,68,0.05); border-color:rgba(239,68,68,0.2); color:#f87171;">
+            <strong>Details:</strong> ${data.error || 'The server rejected the request.'}
+        </div>`;
+        return;
+    }
+
+    const text = data.content?.map(c => c.text || '').join('') || 'No generation returned.';
+    renderAIText(text);
+
+    } catch (e) {
+    document.getElementById('ai-output').innerHTML =
+        `<p style="color:var(--muted);font-size:0.85rem">⚠️ Network Error: ${e.message}</p>`;
+    }
+  }
+
+  function renderAIText(text) {
+    const paras = text.split(/\n\n+/).filter(p => p.trim());
+    let html = '';
+    paras.forEach(p => {
+      const trimmed = p.trim();
+      if (trimmed.match(/^\d+\.|^#+|^Why|^What|^How|^Recomm/i)) {
+        const lines = trimmed.split('\n');
+        html += `<div class="ai-section"><h4>${lines[0].replace(/^[#\d.]+\s*/,'').substring(0,80)}</h4><p>${lines.slice(1).join(' ') || trimmed}</p></div>`;
+      } else {
+        html += `<p style="margin-bottom:0.75rem;font-size:0.875rem;color:#b0b8cc;line-height:1.75">${trimmed}</p>`;
+      }
+    });
+    html += `<div class="cta-battery">
+      <div class="bat-icon">🔋</div>
+      <div class="bat-text">
+        <strong>Bottom line: A battery storage system is the missing piece.</strong>
+        Without it, you're at the mercy of your utility's export rates — selling cheap and buying expensive.
+        A battery lets you store your own power and use it when rates are highest, eliminating your bill entirely.
+      </div>
+    </div>`;
+    document.getElementById('ai-output').innerHTML = html;
+  }
+</script>
+</body>
+</html>
