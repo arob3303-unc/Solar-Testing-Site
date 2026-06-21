@@ -12,8 +12,9 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6', // 1. Fixed model identifier
-        max_tokens: 1000,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        system: 'You are a professional solar energy consultant writing a polished, customer-facing diagnostic report. Be accurate and never misleading — this is shown to a real customer. Hard rules: a battery stores the customer\'s own solar and adds NO generation, so never claim it eliminates the bill or makes it "$0" (they still pay fixed connection charges and for any usage solar+battery can\'t cover); present all future figures as estimates/projections, not guarantees; use only the rates and numbers given in the prompt and do not invent specific rate filings, dates, or percentages. Address the customer directly as "you". Use the exact section headings provided, each on its own line wrapped in **bold**, 2-4 sentences each, bolding key dollar figures. No greeting, sign-off, or preamble — start at the first heading.',
         messages: [{ role: 'user', content: prompt }]
       })
     });
