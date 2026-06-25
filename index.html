@@ -199,6 +199,20 @@
   .billing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
   .billing-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
 
+  /* ── 20-year cost-outlook stat tiles ── */
+  .outlook-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-top:1.1rem; }
+  .outlook-stat { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:0.85rem 0.9rem; text-align:center; }
+  .outlook-stat.util { border-color:rgba(239,68,68,0.3); }
+  .outlook-stat.batt { border-color:rgba(0,212,170,0.3); }
+  .outlook-stat.save { border-color:rgba(0,212,170,0.45); background:linear-gradient(135deg,rgba(0,212,170,0.12),rgba(59,130,246,0.08)); }
+  .outlook-stat .os-label { font-size:0.62rem; text-transform:uppercase; letter-spacing:0.6px; color:var(--muted); font-weight:700; }
+  .outlook-stat .os-val { font-size:1.45rem; font-weight:800; margin-top:0.25rem; line-height:1.1; }
+  .outlook-stat.util .os-val { color:var(--danger); }
+  .outlook-stat.batt .os-val { color:var(--accent); }
+  .outlook-stat.save .os-val { color:var(--accent); }
+  .outlook-stat .os-sub { font-size:0.66rem; color:var(--muted); margin-top:0.2rem; }
+  @media (max-width:560px){ .outlook-stats { grid-template-columns:1fr; } }
+
   /* ── Expandable cards (click to fill screen) ── */
   .expandable { position:relative; cursor:pointer; transition:box-shadow 0.2s, transform 0.2s; }
   .expandable:not(.expanded):hover { box-shadow:0 0 0 1px var(--accent); transform:translateY(-2px); }
@@ -967,6 +981,28 @@
         </div>
       </div>
     </div>
+
+    <div class="bp-section-label">The 20-Year Cost Outlook</div>
+    <div class="chart-grid" style="grid-template-columns:1fr">
+      <div class="chart-card expandable" id="outlook-card">
+        <div class="expand-hint">⤢ Expand</div>
+        <button class="expand-close">✕ Close</button>
+        <div class="chart-header">
+          <div class="chart-title">20-Year Total Cost — Utility vs. Battery</div>
+          <div class="chart-badge">20 years</div>
+        </div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.9rem;line-height:1.6">
+          Cumulative dollars out the door. The <strong style="color:var(--danger)">red</strong> line is what you keep paying
+          <span id="outlook-utility-name">your utility</span> — climbing at <strong>~5%/yr</strong>, the actual pace U.S. residential
+          rates have risen lately per the EIA (about <strong>double general inflation</strong>, driven by 10–15% rate cases).
+          The <strong style="color:var(--accent)">teal</strong> line is a fixed <strong>~$290/mo</strong> battery payment that
+          <strong style="color:var(--accent)">ends at year 15</strong> with our main lender.
+        </p>
+        <div class="chart-body"><canvas id="outlookChart"></canvas></div>
+        <div class="outlook-stats" id="outlook-stats"></div>
+        <p class="outlook-note" id="outlook-note" style="font-size:0.74rem;color:var(--muted);margin-top:0.9rem;line-height:1.6"></p>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -1135,6 +1171,7 @@
     drawCharts(d);
     renderTests(d);
     renderGridCompare(d, rates);
+    renderCostOutlook(d, rates);
     setLiveTime();
     setInterval(setLiveTime, 1000);
 
@@ -1341,21 +1378,165 @@
   /* ── Render the On Grid vs. Off Grid comparison ── */
   function renderGridCompare(d, rates) {
     const oldBill    = Math.round(d.bill || 0);
-    const futureBill = Math.round(oldBill * 2);   // net billing (NM 2.0) ≈ half the old bill
+    const futureBill = Math.round(oldBill/2 + oldBill);   // net billing (NM 2.0) ≈ half the old bill
     const utility    = d.utility && d.utility !== 'Unknown Utility' ? d.utility : 'your utility';
 
     document.getElementById('gc-ongrid').innerHTML = `
-      <li><strong>~$${futureBill.toLocaleString()}/mo</strong> average electric bill — about double of your current ~$${oldBill.toLocaleString()}/mo, since net billing (NM 2.0) now applies to what you send back.</li>
+      <li><strong>~$${futureBill.toLocaleString()}/mo</strong> average electric bill — more than your current ~$${oldBill.toLocaleString()}/mo, since net billing (NM 2.0) now applies to what you send back.</li>
       <li>Forever paying <strong>${utility}</strong> — the meter never stops, even with solar on the roof.</li>
       <li><strong>~4%</strong> average inflation, year over year, working against that bill.</li>
       <li>A <strong>10–15% rate hike</strong> coming from ${utility} — driven by datacenters, AI, grid upgrades, green-energy mandates and other infrastructure costs.</li>`;
 
     document.getElementById('gc-offgrid').innerHTML = `
-      <li><strong>~$300/mo</strong> for a battery system — your whole-home energy cost.</li>
+      <li><strong>~$290/mo</strong> for a battery system — your whole-home energy cost.</li>
       <li>Most people <strong>pay it off in 2–3 years</strong> — but you have up to <strong>15 years</strong> to do it.</li>
       <li><strong>Own your energy</strong> — produce it and store it right at your house.</li>
       <li><strong>Fixed monthly cost</strong> — inflation and utility rate hikes can't touch it.</li>
       <li>A complete solar system <strong>adds value to your home</strong> — roughly <strong>$15k–$79k</strong>, and these homes typically sell faster.</li>`;
+  }
+
+  /* ── 20-Year Cost Outlook: paying the utility (escalating) vs a fixed battery payment ──
+     Cumulative dollars paid over 20 years. The utility line starts at the customer's
+     net-billing (NM 2.0) bill and grows at ~5%/yr. That 5% is data-grounded, not a guess:
+     EIA reports U.S. residential electricity rose ~4.5%/yr from 2022–2026 and ~5% in 2025 —
+     roughly DOUBLE the ~2.5% general inflation rate — driven by 10–15% utility rate cases for
+     grid upgrades, AI/datacenter demand and storm hardening. The battery line is a flat
+     $290/mo that stops once paid off (15-yr financing cap; most homeowners finish in 2–3). */
+  function renderCostOutlook(d, rates) {
+    const YEARS           = 20;
+    const BATTERY_MO      = 290;    // fixed monthly battery payment
+    const PAYOFF_YEARS    = 15;     // financing cap — after this, the battery is owned ($0/mo)
+    // ~5%/yr blended electric-rate escalation. EIA: residential prices grew ~4.5%/yr over
+    // 2022–2026 and ~5% in 2025 (≈2× the ~2.5% CPI). This single rate already bakes in
+    // general inflation AND the periodic 10–15% utility rate cases driving the trend.
+    const ELEC_ESCALATION = 0.05;
+
+    // Year-1 utility bill: today's bill grows under net billing (NM 2.0) — what the
+    // "On Grid" card already shows (~1.5× the current bill once exports are devalued).
+    const currentBill = Math.round(d.bill || 0);
+    const startBill   = Math.round(currentBill * 1.5) || 150;
+    const utilityName = d.utility && d.utility !== 'Unknown Utility' ? d.utility : 'your utility';
+    document.getElementById('outlook-utility-name').textContent = utilityName;
+
+    const labels = [], utilCum = [], battCum = [];
+    let utilTotal = 0, battTotal = 0, monthlyBill = startBill;
+    let bill20 = 0;   // the monthly utility bill in the final year
+
+    for (let yr = 1; yr <= YEARS; yr++) {
+      // This year's monthly bill compounds at the ~5%/yr blended electric-rate escalation.
+      monthlyBill = startBill * Math.pow(1 + ELEC_ESCALATION, yr - 1);
+
+      utilTotal += monthlyBill * 12;
+      battTotal += (yr <= PAYOFF_YEARS ? BATTERY_MO : 0) * 12;
+
+      labels.push('Yr ' + yr);
+      utilCum.push(Math.round(utilTotal));
+      battCum.push(Math.round(battTotal));
+      if (yr === YEARS) bill20 = monthlyBill;
+    }
+
+    const fmt$ = n => '$' + Math.round(n).toLocaleString();
+    const fmtK = n => n >= 1000 ? '$' + (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k' : fmt$(n);
+    const savings = utilTotal - battTotal;
+
+    document.getElementById('outlook-stats').innerHTML = `
+      <div class="outlook-stat util">
+        <div class="os-label">Utility · 20-yr total</div>
+        <div class="os-val">${fmtK(utilTotal)}</div>
+        <div class="os-sub">bill grows to ~${fmt$(bill20)}/mo</div>
+      </div>
+      <div class="outlook-stat batt">
+        <div class="os-label">Battery · 20-yr total</div>
+        <div class="os-val">${fmtK(battTotal)}</div>
+        <div class="os-sub">$${BATTERY_MO}/mo, paid off yr ${PAYOFF_YEARS} ✓</div>
+      </div>
+      <div class="outlook-stat save">
+        <div class="os-label">You keep</div>
+        <div class="os-val">${fmtK(savings)}</div>
+        <div class="os-sub">saved over 20 years</div>
+      </div>`;
+
+    document.getElementById('outlook-note').innerHTML =
+      `Starting from your net-billing bill of ~${fmt$(startBill)}/mo, the utility takes <strong>${fmt$(utilTotal)}</strong> ` +
+      `over 20 years and never stops climbing. The battery is a fixed <strong>$${BATTERY_MO}/mo</strong>, ` +
+      `<strong style="color:var(--accent)">paid off in 15 years through our main lender</strong> (up to 20 on others) — and most homeowners finish in 2–3. ` +
+      `Once it's owned, that payment drops to $0 while the utility keeps climbing, so the longer you look, the wider the gap. ` +
+      `Estimates only. Utility growth is modeled at ~5%/yr — the actual pace U.S. residential electricity rates rose from 2022–2026 ` +
+      `(~5% in 2025), about double general inflation, per the U.S. Energy Information Administration. Actual rates vary by utility and usage.`;
+
+    const ctx = document.getElementById('outlookChart');
+    const existing = window.Chart && Chart.getChart ? Chart.getChart(ctx) : null;
+    if (existing) existing.destroy();
+
+    // Highlight the battery dataset's payoff year with a single teal dot.
+    const battPoints = battCum.map((_, i) => i === PAYOFF_YEARS - 1 ? 5 : 0);
+
+    // Custom plugin: draw a bold vertical "PAID OFF" marker at the year-15 payoff,
+    // so the moment the battery is owned (and the utility keeps climbing) is obvious.
+    const payoffMarker = {
+      id: 'payoffMarker',
+      afterDatasetsDraw(chart) {
+        const xScale = chart.scales.x, yScale = chart.scales.y;
+        if (!xScale || !yScale) return;
+        const x = xScale.getPixelForValue(PAYOFF_YEARS - 1);   // index of "Yr 15"
+        const top = yScale.top, bottom = yScale.bottom;
+        const ctx2 = chart.ctx;
+        ctx2.save();
+        // Vertical dashed line
+        ctx2.beginPath();
+        ctx2.setLineDash([6, 5]);
+        ctx2.lineWidth = 2;
+        ctx2.strokeStyle = '#00d4aa';
+        ctx2.moveTo(x, top);
+        ctx2.lineTo(x, bottom);
+        ctx2.stroke();
+        ctx2.setLineDash([]);
+        // Label pill at the top of the line
+        const label = '✓ PAID OFF · Yr 15';
+        ctx2.font = '700 10px sans-serif';
+        const padX = 7, w = ctx2.measureText(label).width + padX * 2, h = 18;
+        let pillX = x - w / 2;
+        pillX = Math.max(xScale.left + 2, Math.min(pillX, xScale.right - w - 2));
+        const pillY = top + 2;
+        ctx2.fillStyle = '#00d4aa';
+        ctx2.beginPath();
+        ctx2.roundRect(pillX, pillY, w, h, 5);
+        ctx2.fill();
+        ctx2.fillStyle = '#06231d';
+        ctx2.textBaseline = 'middle';
+        ctx2.textAlign = 'left';
+        ctx2.fillText(label, pillX + padX, pillY + h / 2 + 0.5);
+        ctx2.restore();
+      }
+    };
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Paying the utility', data: utilCum, borderColor: '#ef4444',
+            backgroundColor: 'rgba(239,68,68,0.14)', borderWidth: 2, fill: true, tension: 0.25, pointRadius: 0, pointHoverRadius: 4 },
+          { label: 'Fixed battery payment', data: battCum, borderColor: '#00d4aa',
+            backgroundColor: 'rgba(0,212,170,0.12)', borderWidth: 2, fill: true, tension: 0.25,
+            pointRadius: battPoints, pointHoverRadius: 5, pointBackgroundColor: '#00d4aa', pointBorderColor: '#06231d', pointBorderWidth: 1.5 }
+        ]
+      },
+      plugins: [payoffMarker],
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 24 } },   // room for the PAID OFF pill
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: '#6b7280', font: { size: 11 } } },
+          tooltip: { callbacks: { label: c => c.dataset.label + ': ' + fmt$(c.parsed.y) } }
+        },
+        scales: {
+          x: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: { ticks: { color: '#6b7280', font: { size: 10 }, callback: v => fmtK(v) }, grid: { color: 'rgba(255,255,255,0.04)' } }
+        }
+      }
+    });
   }
 
   /* ── Expand / collapse any .expandable card (fills the screen) ── */
