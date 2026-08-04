@@ -1,5 +1,6 @@
 import "./globals.css";
 import SiteFooter from "@/components/SiteFooter";
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
   title: "Whole-Home Energy Audit",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
         <div className="app-shell">{children}</div>
         <SiteFooter />
       </body>
+      <Analytics />
     </html>
   );
 }
