@@ -1,6 +1,6 @@
 "use client";
 
-// NEW card — the resilience value of the Generac standby generator, which is
+// The resilience value of the whole-home standby generator, which is
 // recommended in every report. Sizing comes from lib/rates.estimateGeneratorKw.
 
 import { estimateGeneratorKw, KWH_PER_PANEL, TIER_LABELS } from "@/lib/rates";
@@ -14,15 +14,16 @@ const COVERAGE_COPY = {
 };
 
 const OUTAGE_COPY = {
-  Rare: "Even rare outages hit at the worst times — storms, heat waves, grid strain.",
-  Occasional: "Occasional outages add up: spoiled food, no heat or AC, no water on a well.",
-  Frequent: "With frequent outages, automatic standby power stops being a luxury.",
+  // Outage frequency is deliberately not asked during the solar assessment, so there
+  // is no homeowner-reported value to key off. One accurate line, no invented claim
+  // about how often this particular home loses power.
+  default:
+    "Outages hit at the worst times — storms, heat waves, grid strain. A standby unit carries the whole home through them automatically.",
 };
 
 export default function BackupPowerCard({
   sqft,
   criticalLoads = [],
-  outage = "Occasional",
   heatType = "Gas",
   panelPlan = null,
   showPanels = false,
@@ -42,7 +43,7 @@ export default function BackupPowerCard({
         <span className="backup-icon">🔌</span>
         <div>
           <div className="backup-title">Backup Power Plan</div>
-          <div className="backup-sub">Generac standby generator — recommended for your home</div>
+          <div className="backup-sub">Whole-home standby generator — recommended for your home</div>
         </div>
       </div>
 
@@ -63,7 +64,7 @@ export default function BackupPowerCard({
         </div>
       </div>
 
-      <p className="backup-outage">{OUTAGE_COPY[outage] || OUTAGE_COPY.Occasional}</p>
+      <p className="backup-outage">{OUTAGE_COPY.default}</p>
 
       {/* Solar homes that still have a bill: what it takes to close the remaining gap. */}
       {showPanelPlan && (
@@ -91,7 +92,7 @@ export default function BackupPowerCard({
       )}
 
       <div className="backup-loads">
-        <div className="bl-label">Keeps running during an outage</div>
+        <div className="bl-label">Keeps running when the grid is down</div>
         <div className="bl-chips">
           {loads.map((l) => (
             <span key={l} className="bl-chip">{l}</span>

@@ -1,6 +1,6 @@
 "use client";
 
-// Location & outage exposure report for the non-solar audit.
+// Location and outage exposure report, shown on the pitch page.
 //
 // Every figure here is labelled with where it came from. Two categories only:
 //   • VERIFIED — resolved from a public record (ZIP geocode, utility name).
@@ -9,9 +9,9 @@
 // fails, that row says so rather than showing a number.
 
 import { useEffect, useState } from "react";
-import { fetchOutageProfile, generationCoverage, reportedOutageProfile } from "@/lib/outages";
+import { fetchOutageProfile, generationCoverage } from "@/lib/outages";
 
-export default function OutageReport({ zip, state, utility, outage = "Occasional" }) {
+export default function OutageReport({ zip, state, utility }) {
   // The result is stored WITH the zip it belongs to, so "loading" can be derived
   // rather than set synchronously inside the effect (which would cascade renders).
   // It also means a stale response for a previous ZIP can never render.
@@ -30,7 +30,6 @@ export default function OutageReport({ zip, state, utility, outage = "Occasional
 
   const profile = result?.zip === zip ? result.data : null;
   const loading = Boolean(zip) && !profile;
-  const reported = reportedOutageProfile({ outage });
   const located = profile?.located;
   const eia = profile?.profile || null;
   const coverage = generationCoverage(eia || {});
@@ -77,15 +76,6 @@ export default function OutageReport({ zip, state, utility, outage = "Occasional
             Priority zoning <span className="or-tag verified">Classification</span>
           </span>
           <span className="or-val danger">NOT IN PRIORITY ZONING</span>
-        </div>
-
-        <div className="outage-row">
-          <span className="or-key">
-            Outage frequency <span className="or-tag reported">You reported</span>
-          </span>
-          <span className="or-val">
-            {outage} — {reported.label}
-          </span>
         </div>
 
         {eia?.retailPriceCents != null && (

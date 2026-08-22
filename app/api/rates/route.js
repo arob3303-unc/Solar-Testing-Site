@@ -73,7 +73,7 @@ export async function POST(request) {
     // Akamai (which fronts developer.nrel.gov) can silently drop requests that lack
     // a User-Agent/Accept header, surfacing as a generic "fetch failed".
     const r = await fetch(url, {
-      headers: { 'User-Agent': 'TTSS-Energy-Audit/1.0', 'Accept': 'application/json' }
+      headers: { 'User-Agent': 'VECHTER-Home-Solutions/1.0', 'Accept': 'application/json' }
     });
     const data = await r.json();
 

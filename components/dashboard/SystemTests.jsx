@@ -1,107 +1,73 @@
 "use client";
 
-// Reframed from the legacy "System Diagnostic Tests". Solar homes only.
-// Battery-free: the old "Energy Independence = 0% without a battery" check is gone;
-// resilience is now satisfied by the recommended standby generator.
+// Thin renderer over lib/diagnostics.js. Deliberately holds NO math of its own —
+// if a number appears on this card it was computed by runDiagnostics() from
+// something the homeowner supplied, and a rep can explain where it came from.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { runDiagnostics } from "@/lib/diagnostics";
 
-function grade(p) {
-  return p >= 85 ? "pass" : p >= 60 ? "warn" : "fail";
-}
-function label(p) {
-  return p >= 85 ? "PASS" : p >= 60 ? "CHECK" : "LOW";
-}
+export default function SystemTests({ form, rate }) {
+  const { tests, status, headline } = runDiagnostics({ form, rate });
 
-export default function SystemTests({ form }) {
-  const clamp = (n) => Math.max(0, Math.min(100, Math.round(n)));
-  const kw = Number(form.systemkw) || 7;
-  const production = Number(form.solarProduction) || 0;
-  const usage = Number(form.utilityKwh) || 0;
-  const panels = Number(form.panels) || 0;
-  const expMonthly = Math.max(1, (kw * 1400) / 12); // ~1400 kWh/kW/yr
-
-  // Energy offset = solar's share of the home's TOTAL energy use.
-  //
-  // `utilityKwh` is captured under "Your Electric Bill → Monthly Usage (kWh)", so it
-  // is grid-PURCHASED energy, not whole-home consumption. Total consumption is
-  // therefore production + grid, which is what solar is measured against:
-  //
-  //     offset = production / (production + utilityKwh)
-  //
-  // The previous production/utilityKwh treated the grid portion as the whole home's
-  // usage, which overstated the offset and could exceed 100%. This form is bounded
-  // at 100% by construction — a home can't offset more than it uses.
-  const totalConsumption = production + usage;
-  const offsetPct = totalConsumption > 0 ? (production / totalConsumption) * 100 : 0;
-
-  // Backup readiness is a measured fact, not a courtesy score. With no standby
-  // generator on site the home has zero whole-home backup — saying otherwise
-  // contradicts the entire rest of the audit. A solar backup battery earns partial
-  // credit only: it carries a few essential circuits for hours, not the whole home
-  // through a multi-day outage, and it cannot recharge on a dark winter day.
-  const backupPct = form.hasBattery ? 30 : 0;
-  const backupNote = form.hasBattery
-    ? "Solar battery only — partial loads, short duration"
-    : "No standby generator on site";
-
-  const tests = [
-    { icon: "⚡", name: "Solar Production Output", note: "Measured vs. expected generation", pct: clamp((production / expMonthly) * 100) },
-    { icon: "🔆", name: "Panel & String Health", note: "Array performance scan", pct: clamp(91 + (panels % 9)) },
-    { icon: "🏠", name: "Energy Offset", note: "Solar share of total home energy", pct: clamp(offsetPct) },
-    { icon: "📡", name: "Inverter Communication", note: "Telemetry & WiFi link", pct: 100 },
-    { icon: "🔗", name: "Grid Synchronization", note: "Voltage & frequency sync", pct: 100 },
-    { icon: "🛡️", name: "Backup Readiness", note: backupNote, pct: backupPct },
-  ];
-
-  // Overall status: attention if solar is under-producing OR the home has no real
-  // backup. A "System Healthy" badge sitting next to a 0% row is the same
-  // contradiction the readiness score itself used to have.
-  const underproducing = tests[0].pct < 60;
-  const needsAttention = underproducing || backupPct < 60;
-
+  // Bars animate from zero on mount, so the reveal reads as a measurement running
+  // rather than a static graphic.
   const [filled, setFilled] = useState(false);
-  const ref = useRef(null);
   useEffect(() => {
     const id = requestAnimationFrame(() => setFilled(true));
     return () => cancelAnimationFrame(id);
   }, []);
 
+  const unmeasured = tests.filter((t) => !t.measured).length;
+
   return (
-    <div className="test-section" ref={ref}>
+    <div className="test-section">
       <div className="test-head">
         <div>
           <h2>System Diagnostic Tests</h2>
-          <p>Automated production &amp; consumption checks on your solar system</p>
+          <p>Production and consumption checks measured against your own system</p>
         </div>
-        <div className={`sys-status ${needsAttention ? "attention" : "complete"}`}>
-          <span>{needsAttention ? "⚠️" : "✓"}</span>
-          <span>{needsAttention ? "Needs Attention" : "System Healthy"}</span>
+        <div className={`sys-status ${status === "healthy" ? "complete" : "attention"}`}>
+          <span>{status === "healthy" ? "✓" : "⚠️"}</span>
+          <span>{headline}</span>
         </div>
       </div>
 
       <div className="test-list">
-        {tests.map((t) => {
-          const g = grade(t.pct);
-          return (
-            <div className={`test-row test-${g}`} key={t.name}>
-              <div className="test-row-top">
-                <span className="test-name">
-                  <span className="ti">{t.icon}</span>
-                  {t.name}
-                  <span className="test-note"> · {t.note}</span>
+        {tests.map((t) => (
+          <div className={`test-row test-${t.measured ? t.grade : "none"}`} key={t.name}>
+            <div className="test-row-top">
+              <span className="test-name">
+                <span className="ti" aria-hidden="true">
+                  {t.icon}
                 </span>
-                <span className="test-result">
-                  {t.pct}% · {label(t.pct)}
-                </span>
-              </div>
-              <div className="test-track">
-                <div className={`test-fill ${g}`} style={{ width: filled ? `${t.pct}%` : "0%" }} />
-              </div>
+                {t.name}
+                <span className="test-note"> · {t.measured ? t.detail || t.note : t.reason}</span>
+              </span>
+              <span className="test-result">
+                {t.measured ? `${t.pct}% · ${t.label}` : t.label}
+              </span>
             </div>
-          );
-        })}
+            <div
+              className="test-track"
+              role="img"
+              aria-label={t.measured ? `${t.name}: ${t.pct} percent, ${t.label}` : `${t.name}: not measured`}
+            >
+              {t.measured && (
+                <div className={`test-fill ${t.grade}`} style={{ width: filled ? `${t.pct}%` : "0%" }} />
+              )}
+            </div>
+          </div>
+        ))}
       </div>
+
+      <p className="test-footnote">
+        Production benchmarks assume a healthy panel produces about 41 kWh in an average month,
+        on a 1% per year degradation curve. Rate-based checks appear only where a live rate was
+        resolved for your utility.
+        {unmeasured > 0 &&
+          ` ${unmeasured} check${unmeasured === 1 ? "" : "s"} could not be measured from the information provided — those are reported as not measured rather than estimated.`}
+      </p>
     </div>
   );
 }

@@ -19,7 +19,7 @@ export const metadata = {
 };
 
 const LAST_UPDATED = "August 4, 2026";
-const COMPANY = "[LEGAL ENTITY NAME]";
+const COMPANY = "VECHTER Home Solutions";
 
 const SECTIONS = [
   {

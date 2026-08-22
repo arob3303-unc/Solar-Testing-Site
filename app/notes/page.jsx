@@ -1,594 +1,613 @@
-// Internal closer reference. Three separate references live here — they are
-// different documents, not one merged process, so they stay side by side and the
-// closer picks the one they run. They overlap in places, which is expected:
-//   1. Generator Sales Flow (Coby Rodriguez) — the structured 9-step field process.
-//   2. Mark's Wants and Needs (Mark Wagoner) — the discovery question framework.
-//   3. ChatGPT Transcript — the 8-stage flow reconstructed from the call transcript.
-// Shared reference material (worksheet, analogies, accuracy rules) sits at the end.
+// Internal field guide — the Generator Sales Flow.
+//
+// One document, not three. The earlier version of this page carried three
+// overlapping pitch guides side by side; this replaces all of them with the single
+// finalized flow, so there is never a question of which one a rep is running.
+//
+// The content here is authored copy, held as data and rendered by <Block>. Keep it
+// that way: the visual grammar (shaded = spoken, bulleted = actions, labelled boxes
+// = rules) is what makes the document usable in a living room, and it only holds if
+// every stage is built from the same block types.
 //
 // Static server component — no interactivity, so no "use client".
 
 import NotesToc from "@/components/notes/NotesToc";
 
 export const metadata = {
-  title: "Closer Notes — Pitch Guides",
-  description: "Stage-by-stage pitch guides mapped to the energy audit site.",
+  title: "Field Guide — Generator Sales Flow",
+  description: "VECHTER Home Solutions internal sales reference. Generator plus production package.",
 };
 
-/* ── Flow 1: Generator Sales Flow ─────────────────────────────────────────── */
+/* ── The flow ─────────────────────────────────────────────────────────────── */
 
-const GENERATOR_FLOW = [
+const FLOW = [
   {
     n: 1,
-    title: "On-Site Energy Audit / Investigation",
-    purpose: "Set the frame, then become the expert. You are investigating, not selling.",
-    screen: "Nothing yet — you're outside. The site stays closed until you sit down.",
+    title: "Audit",
+    purpose: "Find out how the solar system is actually operating. Nothing else is on the table yet.",
     blocks: [
       {
+        type: "rule",
+        tone: "brand",
+        label: "This is a solar assessment",
+        text: "Inside sales booked a solar assessment and that is exactly what you are there to do. Most homeowners agreed to the appointment because nobody has looked at their system in years. Do not re-brand it, and do not arrive talking about a generator.",
+      },
+      {
         type: "say",
-        label: "Set the frame before the survey",
-        text: "Thank you for having me out today. The reason I'm here is pretty simple. Since you already own a solar system, we're performing an energy audit to determine whether your home is a good candidate for whole-home backup power. I'm going to take a few measurements around the home, inspect your electrical equipment, and see how your home is currently set up. Once I'm finished, we'll sit down for about 15–20 minutes, I'll explain what I found, answer any questions, and let you know what I would recommend.",
-      },
-      {
-        type: "check",
-        label: "Complete the site survey",
-        items: [
-          "Main electrical panel",
-          "Meter base",
-          "Gas meter / propane tank",
-          "Generator placement",
-          "Transfer switch location",
-          "Utility access",
-          "HVAC",
-          "Critical appliances",
-          "Home layout",
-          "Existing solar equipment",
-          "Photos",
-          "Measurements",
+        paras: [
+          "I'm here to take a look at your solar system and see how it's actually performing. Give me about ten minutes out here and then I'll come find you.",
         ],
       },
       {
-        type: "callout",
-        text: "Do not sell during the survey. Become the expert, observe everything, take notes, look for opportunities.",
+        type: "rule",
+        tone: "alert",
+        label: "Do not mention a generator in this stage",
+        text: "The generator does not come up until you know how the system is operating and you have confirmed there is no backup on the property. A rep who leads with the product has nothing left to discover, and the homeowner hears a pitch instead of an assessment.",
+      },
+      { type: "subhead", text: "Walk the exterior" },
+      {
+        type: "do",
+        label: "Roughly ten minutes. Photograph and note:",
+        items: [
+          "Main electrical panel and meter base",
+          "Existing solar equipment, inverter and data sticker",
+          "Roof area, orientation and available space for additional panels",
+          "Gas meter or propane location",
+          "Transfer switch location, if one exists",
+          "Where a generator could be placed, and the clearances around it",
+        ],
+      },
+      { type: "subhead", text: "Confirm there is no existing backup" },
+      {
+        type: "text",
+        text: "Before you go any further, be certain. Look for a battery on the wall, an existing standby unit on a pad, an automatic transfer switch, or a propane tank already serving something other than the house.",
       },
       {
-        type: "ask",
-        label: "Transition inside",
-        items: [
-          "While I was outside I noticed you don't currently have a backup generator. Out of curiosity, why do you think one wasn't installed when your solar system was put in?",
-          "Did anyone ever explain why they didn't recommend whole-home backup power?",
+        type: "rule",
+        tone: "brand",
+        label: "Compatibility",
+        text: "Where there is no backup, a generator will work on that home regardless of what solar equipment is installed. Inverter brand, panel brand and system age are not qualifying factors.",
+      },
+      { type: "subhead", text: "Return to the door" },
+      {
+        type: "say",
+        paras: [
+          "Everything looks okay out here. I really can't tell you how the system is performing until I run two tests on it — I need to look at your consumption, and I need to look at the production. Where can we sit?",
         ],
+      },
+      {
+        type: "rule",
+        tone: "brand",
+        label: "The two tests",
+        text: "Test one — consumption. Ask for the utility bill. Test two — production. Open their monitoring app. Run both, and say nothing about what you find. You are gathering, not presenting.",
       },
     ],
   },
   {
     n: 2,
-    title: "Wants & Needs / Building Pain",
-    purpose:
-      "Discover what losing power actually costs them. People don't buy generators — people buy protection.",
-    screen: "Intake form — capture critical loads and outage frequency as they answer.",
+    title: "Rapport and Build Trust",
+    purpose: "Build enough trust that the homeowner will accept a problem when you raise it.",
     blocks: [
       {
-        type: "ask",
-        label: "Electrical investigation",
-        items: ["What absolutely has to stay on if the power goes out?"],
+        type: "text",
+        text: "Do not bring up a problem with the system until you have been one-on-one with the homeowner for at least thirty minutes.",
       },
       {
-        type: "check",
-        label: "Uncover every load",
-        items: [
-          "Refrigerator",
-          "Freezer",
-          "HVAC",
-          "Heat",
-          "Air conditioning",
-          "Medical equipment",
-          "Internet",
-          "Security system",
-          "Garage door",
-          "Lights",
-          "Water heater",
-          "Well pump",
-          "Septic pump",
-          "Sump pump",
-          "Home office",
-          "EV charger",
-        ],
+        type: "text",
+        text: "Ask about them. What they do for work, how long they have been in the house, who lives there. Be a person in their living room, not a salesperson in their living room.",
       },
       {
-        type: "callout",
-        text: "After every single answer, ask: \"Why is that important?\" The answer to that question is what you sell to later.",
+        type: "rule",
+        tone: "brand",
+        label: "Diagnostic",
+        text: "If homeowners get resistant quickly, or will not sit down with you at all, the cause is almost always speed. You went too fast and skipped the relationship. Slow down.",
       },
       {
-        type: "ask",
-        label: "Lifestyle",
-        items: [
-          "How often do you lose power?",
-          "How long do your outages usually last?",
-          "Have they become more frequent over the last few years?",
-          "What's the biggest inconvenience when the power goes out?",
-        ],
-      },
-      {
-        type: "ask",
-        label: "Family",
-        items: [
-          "Who lives in the home?",
-          "Does anyone work from home?",
-          "Any young children or elderly family members?",
-          "Does anyone rely on medical equipment?",
-          "Any pets?",
-        ],
-      },
-      {
-        type: "ask",
-        label: "Financial pain",
-        items: [
-          "Have you ever lost groceries because of an outage?",
-          "Have you ever stayed in a hotel because your home lost power?",
-          "Have you ever missed work or lost income?",
-          "Have frozen pipes, sump pumps, or alarms ever been a concern?",
-          "If you lost power for several days, what would that realistically cost you?",
-        ],
-      },
-      {
-        type: "ask",
-        label: "Emotional pain",
-        items: [
-          "What's the most frustrating part about losing power?",
-          "If the power stayed off for three or four days, what would worry you the most?",
-        ],
-      },
-      {
-        type: "check",
-        label: "Build the pain — summarize it back: \"So if the power went out for several days…\"",
-        items: [
-          "Food spoils",
-          "Hotel expenses",
-          "No heating or A/C",
-          "Lost internet",
-          "Missed work",
-          "Frozen pipes",
-          "Security concerns",
-          "Family discomfort",
-          "Stress and uncertainty",
-        ],
-      },
-      {
-        type: "callout",
-        text: "Close the summary with \"Did I miss anything?\" Once they add to it, it's their list — not yours.",
+        type: "rule",
+        label: "When to slow down further",
+        text: "Where the original system was sold by a company that misled them, or where the homeowner has already been burned once, thirty minutes is a floor and not a target. Establish real trust before raising anything.",
       },
     ],
   },
   {
     n: 3,
-    title: "Pre-Frame",
-    purpose: "Earn permission to decide today, before you present anything.",
-    screen: "Run My Energy Audit — start the diagnostics while you set this up.",
+    title: "Drop the Bomb",
+    purpose: "Surface both problems with enough weight that the homeowner feels them.",
     blocks: [
       {
-        type: "say",
-        text: "What I'm going to do is very simple. I'm going to show you how we're going to improve your energy situation entirely, and as long as everything makes sense, I'll sign you up today. Does that sound fair?",
+        type: "text",
+        text: "Thirty minutes in, with both tests run, you raise the problem. This has to carry weight. If the homeowner does not end up concerned, it is because you did not show concern.",
       },
-      { type: "callout", text: "Wait for agreement before moving forward. Do not present over an unanswered question." },
+      { type: "subhead", text: "Problem one — the missing backup" },
+      {
+        type: "say",
+        paras: [
+          "Hold on a second. Your panel isn't marked for backup — where's your backup unit?",
+          "They never explained that to you when the panels went in?",
+        ],
+      },
+      { type: "subhead", text: "Problem two — the power bill" },
+      {
+        type: "text",
+        text: "They have solar and they still have a bill. You saw it in the two tests. Put it on the table alongside the backup so both problems land together.",
+      },
+      {
+        type: "say",
+        paras: ["So you've got two things going on — you're still paying a power bill, and you've got no backup. Fair?"],
+      },
+      {
+        type: "rule",
+        tone: "alert",
+        label: "Get the agreement",
+        text: "Do not move to wants and needs until the homeowner has said out loud that both problems exist. Everything downstream is built on that agreement.",
+      },
     ],
   },
   {
     n: 4,
-    title: "Rolling Blackouts",
-    purpose: "Establish that outages are trending up and are increasingly a decision, not an accident.",
-    screen:
-      "Rolling Blackouts Are Coming card, then the rotating zone diagram below it. Click their zone so the outage lands on them mid-sentence.",
+    title: "Wants and Needs",
+    purpose: "Get the homeowner to name the problems themselves so the list belongs to them.",
     blocks: [
-      {
-        type: "do",
-        label: "Explain simply",
-        items: [
-          "The electrical grid is under more stress than ever.",
-          "Population growth, extreme weather, electric vehicles, AI data centers, and aging infrastructure are all adding demand.",
-          "Utilities are responding with more outages, longer restoration times, and in some areas rolling blackouts.",
-        ],
-      },
-      { type: "ask", label: "Then ask", items: ["Do you think outages are becoming more common or less common?"] },
+      { type: "subhead", text: "Pre-frame the questions" },
       {
         type: "say",
-        text: "Most homeowners aren't preparing for the last outage — they're preparing for the next one.",
+        paras: ["I'm going to ask you a couple of questions — all this does is help me get a full picture of your situation."],
+      },
+      { type: "subhead", text: "Draw the T" },
+      { type: "text", text: "On a notebook, draw a T. Two columns, two questions:" },
+      {
+        type: "say",
+        paras: ["What do you like about your solar?", "And what do you not like about your solar?"],
+      },
+      { type: "text", text: "Write their answers under each side. Then ask the only follow-up that matters:" },
+      { type: "say", paras: ["What else?"] },
+      { type: "text", text: "Keep asking until they stop giving you material. Do not fill silence and do not move on early." },
+      {
+        type: "rule",
+        tone: "brand",
+        label: "What you are listening for",
+        text: "Most systems work, so the like column fills easily. The not-like column is where the sale lives — no backup, the bill never went to zero, credits worth less than they used to be. Those are the items you solve later.",
       },
     ],
   },
   {
     n: 5,
-    title: "Generator Needs / Recommendation",
-    purpose: "Tie the recommendation back to what you personally saw and what they personally told you.",
-    screen: "Backup Power card — sizing and the loads they named.",
+    title: "Pre-Frame",
+    purpose: "Set the same-day expectation and secure a hard agreement before presenting anything.",
     blocks: [
       {
         type: "say",
-        label: "Transition",
-        text: "Based on what I saw during the energy audit and everything you've shared with me, here's what I recommend.",
-      },
-      {
-        type: "do",
-        label: "Explain",
-        items: [
-          "Generator size",
-          "What it will power",
-          "Installation process",
-          "Timeline",
-          "Monitoring",
-          "Financing options",
+        paras: [
+          "My job here is simple. I'm going to walk you through how I'm going to solve your usage problem with the power company, and then I'm going to walk you through how I'm going to get your home set up for full backup along with your solar.",
+          "During this, let's have an open-minded conversation — ask me as many questions as you possibly can, so all the information is completely clear to you.",
+          "As long as everything makes sense and I'm for sure putting you in a better situation than you're in now, I'm going to go ahead and get the ball rolling today. Is that fair?",
         ],
       },
-      { type: "callout", text: "Keep every point anchored to why this recommendation fits this home." },
+      { type: "text", text: "You need a hard yes. Not “okay,” not “we'll see,” not a conditional." },
+      {
+        type: "rule",
+        tone: "alert",
+        label: "If they say no",
+        text: "Do not ignore it and do not push past it. Address it here. A pre-frame that is skipped or half-agreed produces heavy pushback at the proposal, because every unresolved concern arrives at once at the end.",
+      },
     ],
   },
   {
     n: 6,
-    title: "On Grid vs Off Grid / Price Conditioning",
-    purpose: "Price the cost of doing nothing before you price the solution.",
-    screen: "Bill Projection, then On-Grid Only vs. Whole-Energy Stability.",
+    title: "NEM 1 vs. NEM 2",
+    purpose: "Explain the rate change on paper, and let the homeowner conclude the arrangement is bad.",
     blocks: [
+      {
+        type: "text",
+        text: "Use “NEM 1 and NEM 2” rather than net metering versus net billing. Homeowners follow one-then-two more easily.",
+      },
+      { type: "subhead", text: "Draw NEM 1 — the original setup" },
+      {
+        type: "say",
+        paras: [
+          "This is how everybody's system used to be set up — 2018, 2019, 2020, all the same.",
+          "Sun hits the panels, powers the home, and anything extra goes back to the power company. They hold it for you in a savings account and send it back at night when you need it.",
+          "And it came back one for one. You gave them a dollar, they gave you a dollar back. That was your relationship with the power company.",
+        ],
+      },
+      { type: "subhead", text: "Draw NEM 2 — how it works now" },
+      {
+        type: "say",
+        paras: [
+          "It looks exactly the same. Sun hits the panels, extra goes back, they hold it, they send it back when you need it.",
+          "The difference is what it's worth. Think about it like a stock — you sell it at a low price, and then you buy it back at a high price. Would you ever do that on purpose?",
+        ],
+      },
+      { type: "text", text: "Let them answer. Then:" },
+      { type: "say", paras: ["That's the trade you're making with the power company right now."] },
       {
         type: "compare",
         left: {
-          title: "Option 1 — Stay grid-dependent",
-          tone: "grid",
+          tone: "stable",
+          title: "NEM 1 — what they were sold",
           items: [
-            "Spoiled groceries",
-            "Hotel stays",
-            "Missed work or lost income",
-            "Frozen pipes and water damage",
-            "Security system outages",
-            "No heating or air conditioning",
-            "No internet",
-            "Stress and uncertainty",
+            "Extra production banked with the utility",
+            "Credits return one for one",
+            "A dollar out, a dollar back",
           ],
         },
         right: {
-          title: "Option 2 — Whole-home backup",
-          tone: "stable",
+          tone: "grid",
+          title: "NEM 2 — what they have now",
           items: [
-            "Automatic backup power",
-            "Protection for food and appliances",
-            "Heating and cooling",
-            "Internet stays up",
-            "Security stays armed",
-            "Family comfort",
-            "Peace of mind",
+            "Identical on the surface — same flow, same banking",
+            "Export credited low, import bought back at retail",
+            "Selling low and buying high, every single month",
           ],
         },
       },
-      {
-        type: "ask",
-        label: "Price the risk",
-        items: [
-          "If you had another multi-day outage, what do you think it would realistically cost your family?",
-          "And if that happened once every couple of years, would you say that cost is going up or down?",
-        ],
-      },
+      { type: "subhead", text: "The solution — production, not storage" },
       {
         type: "say",
-        label: "Monthly investment vs. cost of doing nothing",
-        text: "Most homeowners don't realize they're already paying for outages — they're just paying for them after they happen. Every outage has a price tag: spoiled food, hotel rooms, missed work, frozen pipes, emergency repairs, or simply the inconvenience of your family being without power. Those costs add up quickly. The difference is that instead of paying unpredictable costs every time the power goes out, you're making one predictable monthly investment to eliminate those risks before they happen.",
+        paras: [
+          "The way you solve that is you add panels. More production means more electricity banked, so when the credit loss happens you don't feel it on your bill.",
+        ],
       },
       {
-        type: "ask",
-        label: "Then close the frame",
-        items: [
-          "If your monthly investment to protect your home was less than what one major outage could cost your family, would that make financial sense?",
-          "Would you rather continue gambling with expensive outages, or make a small monthly investment to make sure your home is always protected?",
-        ],
+        type: "rule",
+        tone: "brand",
+        label: "Full-retail markets",
+        text: "In territories still on one-for-one, an underbuilt system behaves the same way a net-billing system does. The fix is identical — add production to close the gap and bring the bill down.",
       },
     ],
   },
   {
     n: 7,
-    title: "Urgency",
-    purpose: "Make waiting the expensive option, using facts they can verify.",
-    screen: "Total cost projection chart.",
+    title: "Rolling Blackouts, Outages, Data Centers",
+    purpose: "Establish why homeowners in the area are setting up for full backup.",
     blocks: [
       {
         type: "do",
-        label: "Explain",
+        label: "Cover the three drivers, then double-tap for agreement",
         items: [
-          "Installation schedules fill before storm season.",
-          "Most homeowners wait until after the first major outage.",
-          "Lead times increase as demand climbs.",
-          "The best time to prepare is before backup power is needed.",
+          "<strong>Load growth</strong> — more people, more electricity, data center construction along the East Coast",
+          "<strong>Grid stress</strong> — utilities protect infrastructure by shedding load rather than letting equipment fail",
+          "<strong>Storm season</strong> — lines come down every year, and restoration times are getting longer",
         ],
       },
       {
-        type: "do",
-        label: "Where applicable",
-        items: ["Seasonal incentives", "Promotional pricing", "Deferred payments", "Covered payments until storm season"],
+        type: "say",
+        paras: [
+          "Do you know what a rolling blackout is?",
+          "It's when the power company strategically shuts down parts of their grid to take stress off a high-consumption area. They've spent billions on that infrastructure — when it gets stressed, they turn it off rather than let it break.",
+          "You might get two outages a year now. You don't know what that looks like in ten.",
+        ],
+      },
+      { type: "subhead", text: "The solar limitation — state it plainly" },
+      {
+        type: "say",
+        paras: [
+          "One thing worth knowing: when the grid goes down, your solar shuts off too. That's a safety requirement, not a defect. Without backup, the panels don't run your house.",
+          "The generator picks up automatically — about fifteen seconds — and when the grid comes back, the generator steps down and the solar comes back online.",
+        ],
       },
     ],
   },
   {
     n: 8,
-    title: "Warranty / Energy Provider",
-    purpose: "Remove post-signature risk and set up the long-term relationship.",
-    screen: "Backup Power card, then the AI briefing.",
+    title: "Renting vs. Owning",
+    purpose:
+      "Get the homeowner to conclude, in their own words, that owning beats renting — and to accept a high number before you ever show a real one.",
     blocks: [
       {
-        type: "do",
-        label: "Explain",
-        items: ["Manufacturer warranty", "Installation warranty", "Generator monitoring", "Ongoing service and maintenance"],
+        type: "callout",
+        text: "This is the most important section in the flow. Every objection you would otherwise take at the proposal gets surfaced and solved here instead. Do not rush it.",
+      },
+      { type: "subhead", text: "Pre-frame it" },
+      {
+        type: "say",
+        paras: [
+          "This is actually the main reason homeowners get their system set up for extra production and full home backup at the same time. It's because they understand the difference between renting something and owning something.",
+          "In this case, renting is staying on the grid with the power company. Owning is being fully off the grid — not having to worry about what the power company is doing.",
+        ],
+      },
+      {
+        type: "rule",
+        tone: "brand",
+        label: "Why this framing",
+        text: "Renting versus owning maps onto on-grid versus off-grid, and homeowners feel that difference immediately. Pair them and the concept lands without explanation.",
+      },
+      {
+        type: "compare",
+        left: {
+          tone: "grid",
+          title: "Renting — on the grid",
+          items: ["A payment with no end date", "Rises every year, forever", "Outages are someone else's decision"],
+        },
+        right: {
+          tone: "stable",
+          title: "Owning — fully backed up",
+          items: ["A fixed payment that ends", "Most pay it off in five to seven years", "The home stays on regardless"],
+        },
+      },
+      { type: "subhead", text: "The silly questions" },
+      {
+        type: "text",
+        text: "Start from their actual bill. Then walk the ladder. Every question here has one obvious answer, and the homeowner gives it to you.",
       },
       {
         type: "say",
-        text: "Our goal isn't just to install a generator — we want to become your long-term energy provider. Whether it's your generator, your solar system, monitoring, service, future upgrades, or anything related to your home's energy, you'll always have one trusted company to call.",
+        paras: [
+          "So you're already paying a hundred and fifty dollars every single month to rent your electricity from the power company.",
+          "Now, silly question — how long are you going to have to pay for electricity?",
+        ],
       },
+      { type: "text", text: "They say forever. Then:" },
+      {
+        type: "say",
+        paras: ["Another silly question. Do you think that bill stays at a hundred and fifty, or does it go up, or does it go down?"],
+      },
+      { type: "text", text: "They say up. Then:" },
+      {
+        type: "say",
+        paras: [
+          "Right. Just with inflation, rates go up around four percent a year. Do you think the power company stops at inflation?",
+          "Let me ask you this. If you were the power company, and people were pulling more and more electricity off your grid every year — would you charge them more, or less?",
+        ],
+      },
+      { type: "text", text: "They say more. Then close the ladder:" },
+      {
+        type: "say",
+        paras: [
+          "Of course. The power company is a business, they have to make their money. So they raise rates on top of inflation, every year.",
+          "Now take that increase, put it on top of a hundred and fifty dollars, and compound it out. That gets scary pretty fast.",
+        ],
+      },
+      {
+        type: "rule",
+        tone: "alert",
+        label: "Double tap here",
+        text: "Before you move on, ask it directly: “Does that make sense? Any questions on renting versus owning?” If they doubt any part of it, you want to hear it now. An objection you take here is one you do not take at the proposal.",
+      },
+      { type: "subhead", text: "Reallocate, do not add" },
+      {
+        type: "say",
+        paras: [
+          "All we're doing on the owning side is reallocating the money you're already spending to stay on the grid, and putting it toward you owning all of your electricity instead.",
+        ],
+      },
+      { type: "subhead", text: "Hype them into the number" },
+      {
+        type: "text",
+        text: "Be assumptive here. You are putting the homeowner in a good emotional state on purpose, so the high price conditioning does not draw an objection.",
+      },
+      {
+        type: "say",
+        paras: [
+          "You already know this — you're a solar owner, you own your house, you own your cars. You know owning is a luxury. Not everybody even qualifies for it.",
+          "And you also know that owning something costs more monthly. You know that, right?",
+        ],
+      },
+      { type: "subhead", text: "Condition high" },
+      {
+        type: "text",
+        text: "Name a monthly figure above where the payment will actually land. You want them agreeing to a bigger number than the one you are going to show them.",
+      },
+      {
+        type: "say",
+        paras: [
+          "So in this case — owning all of your electricity, fully off the grid, fully backed up. Let's say that runs three hundred and fifty a month.",
+          "The difference is that number is fixed. It doesn't go up. And most people pay this off in five to seven years — we give you up to fifteen if you want it.",
+        ],
+      },
+      {
+        type: "rule",
+        tone: "brand",
+        label: "Why you condition above",
+        text: "If they agree at the conditioned number and the proposal comes in under it, the proposal is good news. If you condition at or below the real payment, the proposal is bad news. Same deal, opposite reaction.",
+      },
+      { type: "subhead", text: "The double zero" },
+      { type: "text", text: "Two questions. The homeowner has to say zero out loud, twice, before you go anywhere." },
+      { type: "say", paras: ["So when that system is paid off — how much are you paying for electricity?"] },
+      {
+        type: "text",
+        text: "Guide them if needed: they pay the connection fee, and that is it. They are not paying for electricity. That is your first zero.",
+      },
+      { type: "say", paras: ["And now you're fully off the grid with full home backup — how many outages are you sitting through?"] },
+      { type: "text", text: "That is your second zero." },
+      {
+        type: "rule",
+        tone: "alert",
+        label: "Do not move without both",
+        text: "If the homeowner has not said zero twice, they have not understood what they are buying. Stay here until they say it.",
+      },
+      { type: "subhead", text: "Close on the concept" },
+      {
+        type: "say",
+        paras: [
+          "Now imagine renting had nothing to do with the power company. And imagine owning had nothing to do with being off the grid. Just the two words — which one would you rather?",
+        ],
+      },
+      { type: "text", text: "They say own. Do not take the win and move on." },
+      { type: "say", paras: ["Why?"] },
+      { type: "text", text: "Let them list it. It has an end date. No more outages. It saves money over time. Keep pulling until they are finished." },
+      {
+        type: "rule",
+        tone: "alert",
+        label: "This is the whole point",
+        text: "A yes without reasons is not a close — it is politeness. The reasons the homeowner gives you here are what carry them through the proposal, and they are the reasons you hand back to them if anything wobbles later. Get all of them before you say a word about urgency.",
+      },
+      { type: "say", paras: ["Perfect."] },
     ],
   },
   {
     n: 9,
-    title: "Next-Step Closing",
-    purpose: "Move to the proposal with no new information introduced.",
-    screen: "AI audit briefing, then the proposal.",
+    title: "Urgency",
+    purpose: "Give accurate, substantiated reasons this happens now rather than later.",
     blocks: [
+      { type: "say", paras: ["This is why everyone is getting qualified for extra production and full home backup today."] },
       {
-        type: "say",
-        text: "Next steps are pretty simple. I'm going to show you the proposal, and as long as everything lines up with what we talked about, I'm going to qualify you and get you signed up. Cool?",
-      },
-      {
-        type: "callout",
-        text: "If a brand-new objection shows up here, it belongs to an earlier step. Go back to that step instead of negotiating at the close.",
-      },
-    ],
-  },
-];
-
-/* ── Flow 2: Mark's Wants and Needs ───────────────────────────────────────── */
-
-const MARK_FLOW = [
-  {
-    n: 1,
-    title: "The Six Questions",
-    purpose:
-      "Audit wants and needs. Every question exists to surface a problem you can solve.",
-    screen: "Intake form — fill it in as they answer. What they say here is what you sell to later.",
-    blocks: [
-      {
-        type: "qa",
-        label: "Ask in this order",
+        type: "do",
+        label: "Two points",
         items: [
-          { q: "Why'd you set the appointment?", why: "Find the root cause." },
-          { q: "What do you know about your system?", why: "Prior knowledge." },
-          { q: "What do you think about your system?", why: "Opinion and feelings." },
-          {
-            q: "How long have you had this bill / system?",
-            why: "How long the customer has been in pain.",
-          },
-          {
-            q: "Why did you go solar? What did you want?",
-            why: "Discover how the customer makes decisions.",
-          },
-          {
-            q: "What do you want from this appointment?",
-            why: "Recap of everything, and an easy transition into testing / the pre-frame.",
-          },
+          "<strong>Compatibility</strong> — confirming now that we can get this specific home the panels it needs and a generator that fully backs it up.",
+          "<strong>Supply and demand</strong> — as utilities move to NEM 2 style billing, more homeowners add production; as outages increase, more homeowners add backup. Demand rises against fixed supply.",
         ],
       },
-      {
-        type: "callout",
-        text: "Listen to Mark explain wants and needs, and apply the same concepts.",
-      },
     ],
   },
   {
-    n: 2,
-    title: "Two Questions to Ask Yourself",
-    purpose:
-      "Run every question you're about to ask through this filter first. If it fails both, cut it.",
-    screen: "Nothing. This one is for you, not the customer.",
+    n: 10,
+    title: "Service and Warranties",
+    purpose: "Explain what they are covered on and how the production side is delivered.",
     blocks: [
       {
         type: "do",
-        label: "Before anything comes out of your mouth",
+        label: "Cover in order",
         items: [
-          "Why am I asking this question?",
-          "Does this help me find a way to close the customer, by finding a problem I can solve?",
+          "Generator manufacturer warranty and installation warranty",
+          "Ongoing service, monitoring and scheduled maintenance",
+          "Twenty-five year manufacturer warranty on panels, plus workmanship coverage",
+          "Two-step installation — generator first, panel crew follows",
         ],
       },
-      { type: "say", text: "Closing is just solving problems." },
+      {
+        type: "say",
+        paras: [
+          "Our goal isn't just to put in a generator. We're taking over your system — the generator, the panels, the monitoring, the service. One company to call.",
+        ],
+      },
+      { type: "subhead", text: "The production package" },
+      {
+        type: "text",
+        text: "The panel portion is delivered as an incentive built into the project and funded at generator installation. Funds are disbursed to the company, and the panels are supplied to the homeowner at our cost. This structure is approved by the lender.",
+      },
+      {
+        type: "say",
+        paras: [
+          "The way we handle the panels is simple. There's an incentive built in at the generator install, and that's what covers the panels — they come to you at our cost, direct.",
+          "Those panels carry a twenty-five year manufacturer warranty, and we cover the workmanship.",
+        ],
+      },
+    ],
+  },
+  {
+    n: 11,
+    title: "Next-Step Closing",
+    purpose: "Move to paperwork as the continuation of an agreement already reached.",
+    blocks: [
+      { type: "say", paras: ["Before I show you where you qualified — is there anything at all you want to raise with me at this point?"] },
+      {
+        type: "rule",
+        tone: "alert",
+        label: "Ask it every time",
+        text: "A concern that never reaches the table stays in the homeowner's head and returns as a cancellation two days later. Inviting it is faster than discovering it.",
+      },
+      {
+        type: "say",
+        paras: [
+          "Next steps are simple. I'll walk you through the proposal, and as long as everything lines up with what we've talked about, I'll qualify you and get you signed up. Sound good?",
+        ],
+      },
+      {
+        type: "do",
+        label: "Then walk the process so nothing at install is a surprise",
+        items: [
+          "Sign the agreement and the proposal today.",
+          "Short welcome call with our team.",
+          "Project manager calls the next day and takes over — you keep your rep.",
+          "They handle permitting; the homeowner does nothing.",
+          "Generator install is scheduled and takes a few hours.",
+          "Panel crew follows on a separate date.",
+        ],
+      },
+    ],
+  },
+  {
+    n: 12,
+    title: "Show the Proposal",
+    purpose: "Present numbers to a homeowner who has already agreed to everything the numbers represent.",
+    blocks: [
+      { type: "text", text: "Walk the pricing breakdown line by line. Do not rush it and do not talk over it." },
+      {
+        type: "say",
+        paras: ["Here's the breakdown. Walk through it with me — what stands out?", "Does this make sense? Any questions at all?"],
+      },
+      {
+        type: "rule",
+        tone: "alert",
+        label: "If you get pushback here",
+        text: "Pushback at the proposal means something upstream was skipped — a soft pre-frame, a thin wants and needs, or a rent-versus-own where they never told you why they would rather own. Go back to that step rather than defending the number.",
+      },
+    ],
+  },
+  {
+    n: 13,
+    title: "Sign",
+    purpose: "Complete the paperwork cleanly.",
+    blocks: [
+      {
+        type: "say",
+        paras: ["Great — next step is to go into your email and complete the DocuSign. I'm right here if anything comes up."],
+      },
+      {
+        type: "rule",
+        tone: "alert",
+        label: "Before any signature",
+        text: "Confirm every decision-maker is present and that the homeowner has had a full opportunity to ask questions. A signature obtained without both is a cancellation with a delay built into it.",
+      },
+      {
+        type: "rule",
+        label: "Do not stall",
+        text: "Once they have confirmed it makes sense, move. Waiting for an enthusiastic verbal yes that never comes talks homeowners out of decisions they already made — but make sure they have genuinely agreed before you direct them to sign.",
+      },
     ],
   },
 ];
 
-/* ── Flow 3: ChatGPT Transcript (from the call transcript) ────────────────── */
+/* ── Reference material ───────────────────────────────────────────────────── */
 
-const STAGES = [
-  {
-    n: 1,
-    title: "Opening & Discovery",
-    lines: "Lines 1–90",
-    purpose: "Build rapport and uncover motivation before a single number comes out.",
-    screen: "Intake form — fill it out together, out loud. Their answers are your ammunition later.",
-    asks: [
-      "Why did you set the appointment? What did they tell you on the phone?",
-      "Ever had a power audit done before?",
-      "Any upgrades to the home — roof, foundation, remodel?",
-      "What's the weather like here? Extreme heat, storms, hurricanes?",
-      "What's the electric bill running? Has it always been that?",
-      "How long have you been in the home?",
-      "Anything specific you want me to look at while I walk the house?",
-    ],
-    tip: "Mirror their answers back as a frame you'll reuse: \"So when something isn't working properly, you fix it.\" That sets them up as proactive, which makes the close consistent with who they already told you they are.",
-  },
-  {
-    n: 2,
-    title: "Outage Discovery",
-    lines: "Lines 91–191",
-    purpose: "Turn outages from an annoyance into a number. This is the stage that funds the T-chart.",
-    screen: "Intake backup fields — outage frequency and critical loads, entered as they answer.",
-    asks: [
-      "How often do outages hit? How long do they last? Which season?",
-      "What's affected — Wi-Fi, food, work from home, the kids, your spouse?",
-      "Have you actually lost food before, or is it just a worry?",
-      "Did you ever have to leave for a hotel? How many nights, how much?",
-      "How fast is the utility to respond when a line goes down?",
-      "How quick does the house get hot when the AC drops?",
-    ],
-    tip: "Do not leave this stage without dollar figures: cost of a grocery haul, cost of a hotel night, how many people had to go. You cannot build the cost-of-doing-nothing math without them.",
-  },
-  {
-    n: 3,
-    title: "Transition to Solution",
-    lines: "Lines 192–199",
-    purpose: "Summarize the problems back, name the solution, and get an agreement to decide today.",
-    screen: "Hit Run My Energy Audit — the diagnostics sequence runs while you talk.",
-    asks: [
-      "Summarize every problem they just handed you, in their words.",
-      "\"In light of all of that, what fixes everything is a backup power unit.\"",
-      "\"I'll walk you through exactly how it works. If we agree it puts you in a better situation, I'll get you qualified and signed up today. Does that sound fair?\"",
-    ],
-    tip: "The \"does that sound fair?\" yes is the real pre-close. Get it before you educate, not after — it's what makes the rest of the pitch a decision instead of a lecture.",
-  },
-  {
-    n: 4,
-    title: "Education: Rolling Blackouts",
-    lines: "Lines 200–260",
-    purpose: "Reframe outages from accident to policy — something scheduled and done to them on purpose.",
-    screen:
-      "Rolling Blackouts Are Coming card, then the rotating zone diagram directly below it. Click their zone so the outage lands on them while you talk.",
-    asks: [
-      "\"Have you ever heard of a rolling blackout? A controlled blackout?\"",
-      "Two tiers of infrastructure: residential/commercial vs. priority buildings.",
-      "\"When I say priority building, what do you think I mean?\" — let them say hospital, police, government.",
-      "Data centers now fall under that priority umbrella — state revenue, utility funding.",
-      "One data center draws power on the scale of an entire city added to the grid.",
-      "\"If you drop that into your city, does that add stress to the grid?\"",
-      "Too much stress and the grid has to shed load somewhere.",
-      "\"Who do you think they sacrifice — the priority buildings and data centers, or the neighborhoods?\" Then: \"Why?\"",
-    ],
-    tip: "Land it plainly: it isn't that a tree fell. The utility switched their power off because in their accounting the neighborhood is worth less than a data center. Let the zone diagram keep rotating while that sits.",
-  },
-  {
-    n: 5,
-    title: "On-Grid vs. Off-Grid",
-    lines: "Lines 261–336",
-    purpose: "Stack the true monthly cost of doing nothing, then show it only goes up.",
-    screen: "Bill Projection chart, then On-Grid Only vs. Whole-Energy Stability.",
-    asks: [
-      "Draw the T-chart: on-grid with the utility vs. off-grid with a power unit.",
-      "Fold the outage losses into the bill (see the worksheet below) — that's their real number.",
-      "\"Is there a button you can hit to make outages go away?\" → outages last forever.",
-      "\"With everything you now know, are outages getting more common or less?\" → so that cost climbs.",
-      "Phone-provider analogy: bad service, you switch carriers. The utility is a monopoly — you can't.",
-      "\"So we do the same thing: take the money you already spend on power that fails and reallocate it into power that works.\"",
-      "Outages fixed at zero. Equity added to the home on resale. Most pay it off in 3–6 years, grace period to 15.",
-    ],
-    tip: "Ask why they picked the power unit side and stay quiet. When they say \"peace of mind\" or \"my family is safer,\" make them expand on it — their own words close harder than yours.",
-  },
-  {
-    n: 6,
-    title: "Urgency",
-    lines: "Lines 337–366",
-    purpose: "Two interconnected levers: install schedules and storm season.",
-    screen: "Total cost projection chart.",
-    asks: [
-      "\"When's storm season here?\" — get them to name the window.",
-      "Closer to storm season, everyone wants to be prepped. \"What does that do to demand?\"",
-      "\"And when demand goes up, what happens to price?\"",
-      "So you face both problems: schedules book out past the season, and you pay more.",
-      "Incentive: we cover the monthly payments through to storm season to smooth the transition.",
-    ],
-    tip: "Let them supply each answer. Urgency they reason their way into holds up; urgency you assert gets argued with.",
-  },
-  {
-    n: 7,
-    title: "Peace of Mind & Partnership",
-    lines: "Lines 367–394",
-    purpose: "Remove post-signature risk — the quiet objection they haven't said out loud.",
-    screen: "Backup Power card.",
-    asks: [
-      "15-year warranty: parts, everything electrical, and workmanship — 100% covered.",
-      "Energy partnership: additional solar panels to bring the bill down alongside the unit.",
-      "\"If anything happens with power in this home, who do you call? Us.\" HVAC, insulation, windows, anything power-related.",
-      "We're not a fly-by-night installer who buys ten units and disappears — we service this home for decades.",
-      "If they ask \"what if I move?\" — we're still your partner, still the first call.",
-    ],
-    tip: "This is where a hesitant buyer is actually sitting. If they've gone quiet since the T-chart, slow down and spend real time here.",
-  },
-  {
-    n: 8,
-    title: "Close",
-    lines: "Lines 395–400",
-    purpose: "Move straight into next steps with no new information introduced.",
-    screen: "AI audit briefing, then the proposal.",
-    asks: [
-      "Review the design and proposal from the engineering team together.",
-      "Confirm it aligns with everything discussed.",
-      "Get them qualified.",
-      "On approval, send the documents and sign.",
-      "Set the welcome call.",
-    ],
-    tip: "Nothing new goes on the table here. If a fresh objection appears, it belongs to an earlier stage — go back to that stage rather than negotiating at the close.",
-  },
+const PRODUCT_REFERENCE = [
+  ["Standard unit", "22 kW — backs up a home to roughly 4,500 sq ft in full"],
+  ["Transfer", "Automatic. Approximately 15 seconds from outage to generator power"],
+  ["Load limits", "Carries AC and full home loads — no need to pick a handful of essential circuits"],
+  ["No natural gas", "$2,500 adder for propane tank. Typically 200 gallons, or two 100-gallon tanks"],
+  ["Tank fill", "Coordinated with local supplier; homeowner maintains the tank thereafter"],
+  ["Solar during outage", "Solar does not run the home without storage. Generator carries the load; solar returns when the grid does"],
+  ["Panel pricing", "$350 per panel"],
+  ["Panel warranty", "25-year manufacturer warranty plus workmanship"],
+  ["Install sequence", "Generator first, panel crew follows on a separate date"],
+  ["Inverter", "If an additional inverter is required it comes with the panel install at no additional homeowner cost"],
+  ["Roof full", "Pivot the production side to spray foam — attic and crawlspace — and sell it the same way"],
+  ["Commercial property", "No home improvement financing. Business loan or cash only"],
+  ["Financing", "GreenSky is current first look. Do not place generators with Service Finance."],
 ];
 
-/* ── Shared reference ─────────────────────────────────────────────────────── */
-
-const ANALOGIES = [
-  {
-    name: "Priority vs. residential",
-    use: "Hospitals, police, and government must stay powered — and data centers now sit in that tier. Everything else is what gets shed.",
-  },
-  {
-    name: "The data center",
-    use: "A single facility adds city-scale demand to the grid overnight. Ask whether that adds stress rather than asserting it.",
-  },
-  {
-    name: "The phone carrier",
-    use: "Bad cell service and you switch providers. The utility is a monopoly, so the only way to switch is to make your own power.",
-  },
-  {
-    name: "Reallocation, not new spend",
-    use: "They already pay for power that fails. This moves that same money to power that works.",
-  },
-  {
-    name: "Renting vs. owning",
-    use: "A utility payment rents power for one month and buys nothing — and the rent goes up every year, forever. A financed unit is a payment that ends, leaving equipment they own that stays with the home. Ask what ten years of rent has bought them so far.",
-  },
+const STANDING_REQUIREMENTS = [
+  "Thirty minutes of relationship before any problem is raised. No exceptions.",
+  "Read rates off the bill in front of you. Do not quote figures from memory or from another customer.",
+  "Claim rolling blackouts only where they demonstrably occur in that utility's territory.",
+  "State the limits of the product out loud before the homeowner finds them.",
+  "Confirm every decision-maker is present before presenting the proposal.",
+  "Where a homeowner states a clear reason they will not sign today, book a specific follow-up rather than pushing through it.",
 ];
 
-const GUARDRAILS = [
-  "Present the payoff window, monthly figure, and any savings as estimates until engineering returns real numbers — never as guarantees.",
-  "\"Zero outages\" means the home stays powered through utility outages. Don't stretch it into a claim that nothing can ever go wrong.",
-  "The data center comparison is an order-of-magnitude analogy. Don't attach invented precise figures, dates, or percentages to it.",
-  "Never invent a specific rate filing or a percentage increase. Speak to the direction of the trend, which is well supported.",
-  "Batteries and solar storage are not products here. Never pitch storage, and never imply the generator stores solar energy — it runs on natural gas or propane.",
-  "Backup power doesn't remove the home from the utility's rotation. It makes their turn a non-event. That's the accurate version and it lands just as hard.",
-];
-
-/* ── Contents rail ────────────────────────────────────────────────────────── */
-
-// Ids here MUST match the ids rendered below — NotesToc resolves them with
-// getElementById to track scroll position.
+/* ── Contents rail ─────────────────────────────────────────────────────────
+   These ids MUST match the ids rendered below — NotesToc resolves them with
+   getElementById, so a typo silently produces a dead link and a rail that never
+   highlights. */
 const TOC = [
   {
-    id: "generator-flow",
-    label: "Generator Sales Flow",
-    items: GENERATOR_FLOW.map((s) => ({ id: `gen-${s.n}`, label: `${s.n}. ${s.title}` })),
+    id: "frame",
+    label: "The Frame",
+    items: [],
   },
   {
-    id: "mark-wants-needs",
-    label: "Mark's Wants and Needs",
-    items: MARK_FLOW.map((s) => ({ id: `mark-${s.n}`, label: `${s.n}. ${s.title}` })),
-  },
-  {
-    id: "audit-pitch",
-    label: "ChatGPT Transcript",
-    items: STAGES.map((s) => ({ id: `pitch-${s.n}`, label: `${s.n}. ${s.title}` })),
+    id: "flow",
+    label: "Sales Flow",
+    items: FLOW.map((s) => ({ id: `stage-${s.n}`, label: `${s.n}. ${s.title}` })),
   },
   {
     id: "reference",
-    label: "Reference & Accuracy",
+    label: "Reference",
     items: [
-      { id: "ref-worksheet", label: "Cost-of-Doing-Nothing Worksheet" },
-      { id: "ref-analogies", label: "Analogies That Carry the Pitch" },
-      { id: "ref-accuracy", label: "Keep It Accurate" },
+      { id: "ref-product", label: "Product and Operations" },
+      { id: "ref-standing", label: "Standing Requirements" },
     ],
   },
 ];
@@ -596,43 +615,40 @@ const TOC = [
 /* ── Renderers ────────────────────────────────────────────────────────────── */
 
 function Block({ b }) {
+  if (b.type === "subhead") {
+    return <span className="note-subhead">{b.text}</span>;
+  }
+
+  if (b.type === "text") {
+    return <p className="note-purpose">{b.text}</p>;
+  }
+
+  // Shaded block = spoken word for word. The single most important visual
+  // distinction in the document, so it never shares styling with anything else.
   if (b.type === "say") {
     return (
       <div className="note-say">
-        {b.label && <span className="note-block-label">{b.label}</span>}
-        <p>{b.text}</p>
+        {b.paras.map((p, i) => (
+          <p key={i}>{p}</p>
+        ))}
       </div>
     );
   }
-  if (b.type === "ask" || b.type === "do") {
+
+  if (b.type === "do") {
     return (
       <div className="note-block">
         {b.label && <span className="note-block-label">{b.label}</span>}
-        <ul className={b.type === "ask" ? "note-asks" : "note-dos"}>
+        <ul className="note-dos">
           {b.items.map((t, i) => (
-            <li key={i}>{t}</li>
+            // Authored copy only — the strings live in this file, never user input.
+            <li key={i} dangerouslySetInnerHTML={{ __html: t }} />
           ))}
         </ul>
       </div>
     );
   }
-  // Question paired with the reason it's being asked — the whole point of Mark's
-  // framework is that the "why" travels with the question.
-  if (b.type === "qa") {
-    return (
-      <div className="note-block">
-        {b.label && <span className="note-block-label">{b.label}</span>}
-        <ol className="note-qa">
-          {b.items.map((item, i) => (
-            <li key={i}>
-              <span className="note-qa-q">{item.q}</span>
-              <span className="note-qa-why">{item.why}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
-    );
-  }
+
   if (b.type === "check") {
     return (
       <div className="note-block">
@@ -647,9 +663,22 @@ function Block({ b }) {
       </div>
     );
   }
+
+  // Labelled rule box. tone "alert" is a hard rule the rep does not get to
+  // interpret; "brand" explains why something works; the default gold is guidance.
+  if (b.type === "rule") {
+    return (
+      <div className={`note-rule ${b.tone || ""}`}>
+        <span className="note-rule-label">{b.label}</span>
+        <p>{b.text}</p>
+      </div>
+    );
+  }
+
   if (b.type === "callout") {
     return <p className="note-callout">{b.text}</p>;
   }
+
   if (b.type === "compare") {
     return (
       <div className="note-compare">
@@ -666,44 +695,27 @@ function Block({ b }) {
       </div>
     );
   }
+
   return null;
 }
 
-function FlowStep({ s, id }) {
+function Stage({ s }) {
   return (
-    <section className="note-stage" id={id}>
+    <section className="note-stage" id={`stage-${s.n}`}>
       <div className="note-stage-head">
         <span className="note-num">{s.n}</span>
         <div>
           <h3 className="note-stage-title">{s.title}</h3>
-          {s.lines && <span className="note-lines">{s.lines}</span>}
         </div>
       </div>
 
-      <p className="note-purpose">{s.purpose}</p>
+      <p className="note-purpose">
+        <strong>Purpose.</strong> {s.purpose}
+      </p>
 
-      <div className="note-screen">
-        <span className="note-screen-tag">On screen</span>
-        <span>{s.screen}</span>
-      </div>
-
-      {s.blocks?.map((b, i) => (
+      {s.blocks.map((b, i) => (
         <Block b={b} key={i} />
       ))}
-
-      {s.asks && (
-        <ul className="note-asks">
-          {s.asks.map((a, i) => (
-            <li key={i}>{a}</li>
-          ))}
-        </ul>
-      )}
-
-      {s.tip && (
-        <p className="note-tip">
-          <strong>Coaching:</strong> {s.tip}
-        </p>
-      )}
     </section>
   );
 }
@@ -712,18 +724,17 @@ export default function NotesPage() {
   return (
     <main className="note-main">
       <header className="note-header">
-        <span className="note-eyebrow">Internal — Closer Reference</span>
+        <span className="note-eyebrow">Internal — Field Guide</span>
         <h1>
-          Pitch Guides: <span>Whole-Home Backup Power</span>
+          Generator <span>Sales Flow</span>
         </h1>
-        <p>
-          The most recent Pitch Flows, summarized and easy to follow.
-        </p>
+        <p className="note-motto">Solve the power bill. Solve the backup. Take over the system.</p>
+        <p className="note-sub">Field guide · Generator + Production Package</p>
         <div className="note-jump">
-          <a href="#generator-flow">① Generator Sales Flow</a>
-          <a href="#mark-wants-needs">② Mark&apos;s Wants and Needs</a>
-          <a href="#audit-pitch">③ ChatGPT Transcript</a>
-          <a href="#reference">④ Reference &amp; Accuracy</a>
+          <a href="#frame">The Frame</a>
+          <a href="#flow">The 13 Stages</a>
+          <a href="#ref-product">Product Reference</a>
+          <a href="#ref-standing">Standing Requirements</a>
         </div>
       </header>
 
@@ -731,132 +742,120 @@ export default function NotesPage() {
         <NotesToc groups={TOC} />
 
         <div className="note-content">
-      {/* ── Flow 1 ── */}
-      <div className="note-flowhead" id="generator-flow">
-        <h2>Generator Sales Flow</h2>
-        <p className="note-attrib">
-          Created by Coby Rodriguez · Executive of Sales · Vector Home Solutions
-        </p>
-        <p className="note-tagline">
-          Protecting the home. Protecting the family. Becoming their long-term energy partner.
-        </p>
-      </div>
-
-      <nav className="note-flow" aria-label="Generator sales flow steps">
-        {GENERATOR_FLOW.map((s) => (
-          <a className="note-flow-item" key={s.n} href={`#gen-${s.n}`}>
-            <span className="note-flow-num">{s.n}</span>
-            {s.title}
-          </a>
-        ))}
-      </nav>
-
-      {GENERATOR_FLOW.map((s) => (
-        <FlowStep key={s.n} s={s} id={`gen-${s.n}`} />
-      ))}
-
-      {/* ── Flow 2 ── */}
-      <div className="note-flowhead" id="mark-wants-needs">
-        <h2>Mark&apos;s Wants and Needs</h2>
-        <p className="note-attrib">Created by Mark Wagoner · President of Sales</p>
-        <p className="note-tagline">
-          Audit wants and needs — every question exists to surface a problem you can solve.
-        </p>
-      </div>
-
-      <nav className="note-flow" aria-label="Mark's wants and needs sections">
-        {MARK_FLOW.map((s) => (
-          <a className="note-flow-item" key={s.n} href={`#mark-${s.n}`}>
-            <span className="note-flow-num">{s.n}</span>
-            {s.title}
-          </a>
-        ))}
-      </nav>
-
-      {MARK_FLOW.map((s) => (
-        <FlowStep key={s.n} s={s} id={`mark-${s.n}`} />
-      ))}
-
-      {/* ── Flow 3 ── */}
-      <div className="note-flowhead" id="audit-pitch">
-        <h2>ChatGPT Transcript</h2>
-        <p className="note-attrib">Reconstructed from the recorded call transcript</p>
-        <p className="note-tagline">
-          Discovery earns the numbers, the site makes them visual, the close restates what they
-          already agreed to.
-        </p>
-      </div>
-
-      <nav className="note-flow" aria-label="ChatGPT transcript stages">
-        {STAGES.map((s) => (
-          <a className="note-flow-item" key={s.n} href={`#pitch-${s.n}`}>
-            <span className="note-flow-num">{s.n}</span>
-            {s.title}
-          </a>
-        ))}
-      </nav>
-
-      {STAGES.map((s) => (
-        <FlowStep key={s.n} s={s} id={`pitch-${s.n}`} />
-      ))}
-
-      {/* ── Shared reference ── */}
-      <div className="note-flowhead" id="reference">
-        <h2>Reference &amp; Accuracy</h2>
-        <p className="note-tagline">Applies to both flows.</p>
-      </div>
-
-      <section className="note-stage note-worksheet" id="ref-worksheet">
-        <h3 className="note-stage-title">The Cost-of-Doing-Nothing Worksheet</h3>
-        <p className="note-purpose">
-          Run this live with their own numbers. The point is that the true cost of staying
-          grid-dependent is already well above the bill they think they pay.
-        </p>
-        <ol className="note-steps">
-          <li>
-            <strong>Outages per year</strong> × <strong>what each one costs</strong> (spoiled
-            groceries, a hotel night, lost work) = annual loss.
-          </li>
-          <li>
-            Annual loss <strong>÷ 12</strong> = the hidden monthly cost.
-          </li>
-          <li>
-            Add that to the electric bill = <strong>what they actually pay per month today</strong>.
-          </li>
-          <li>Establish outages are trending up, so that number climbs every year they wait.</li>
-        </ol>
-        <p className="note-example">
-          <strong>Worked example:</strong> $250/mo bill · 4 outages/yr · $200 groceries lost each =
-          $800/yr ÷ 12 ≈ <strong>$66/mo</strong> → roughly <strong>$316/mo</strong>, called an even
-          $300. Round <em>down</em>, out loud — being conservative with their number buys
-          credibility for the rest of the math.
-        </p>
-      </section>
-
-      <section className="note-stage" id="ref-analogies">
-        <h3 className="note-stage-title">Analogies That Carry the Pitch</h3>
-        <div className="note-analogies">
-          {ANALOGIES.map((a) => (
-            <div className="note-analogy" key={a.name}>
-              <div className="note-analogy-name">{a.name}</div>
-              <p>{a.use}</p>
+          <section className="note-frame" id="frame">
+            <h2>The Frame</h2>
+            <p>
+              This flow solves two problems for the homeowner at the same time: the power bill they
+              are still paying, and the fact that their home has no backup when the grid goes down.
+            </p>
+            <p>
+              The package is a generator plus added production, delivered together, with warranty and
+              service behind it.
+            </p>
+            <p>
+              The critical distinction: <strong>a generator does not reduce a power bill.</strong> It
+              powers the home when the grid goes down, and that is all it does. The bill is solved by
+              adding production — panels — or, where the roof is full, by reducing load with spray
+              foam.
+            </p>
+            <div className="note-rule brand">
+              <span className="note-rule-label">Why this works</span>
+              <p>
+                Building the array past full offset — roughly 130 percent — banks enough extra
+                production that the homeowner stops feeling the credit loss on their bill. That is
+                what solves the power bill. The generator is what solves the outage.
+              </p>
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
 
-      <section className="note-stage note-guard" id="ref-accuracy">
-        <h3 className="note-stage-title">Keep It Accurate</h3>
-        <p className="note-purpose">
-          The grid strain is real and the argument stands on its own. Overstating it is the one
-          thing that can lose a deal at the kitchen table — or after it.
-        </p>
-        <ul className="note-guard-list">
-          {GUARDRAILS.map((g, i) => (
-            <li key={i}>{g}</li>
+          <div className="note-key">
+            <span className="note-key-item">
+              <span className="note-key-swatch say" aria-hidden="true" />
+              Shaded blocks are spoken, word for word
+            </span>
+            <span className="note-key-item">
+              <span className="note-key-swatch act" aria-hidden="true" />
+              Bulleted lists are actions you take
+            </span>
+            <span className="note-key-item">
+              Do not advance until the current stage is complete and the homeowner has verbally
+              agreed.
+            </span>
+          </div>
+
+          <div className="note-flowhead" id="flow">
+            <h2>The Flow</h2>
+            <p className="note-attrib">VECHTER Home Solutions · Generator + Production Package</p>
+            <p className="note-tagline">
+              Thirteen stages, in order. Each one earns the right to the next.
+            </p>
+          </div>
+
+          <nav className="note-flow" aria-label="Sales flow stages">
+            {FLOW.map((s) => (
+              <a className="note-flow-item" key={s.n} href={`#stage-${s.n}`}>
+                <span className="note-flow-num">{s.n}</span>
+                {s.title}
+              </a>
+            ))}
+          </nav>
+
+          {FLOW.map((s) => (
+            <Stage key={s.n} s={s} />
           ))}
-        </ul>
-      </section>
+
+          <div className="note-flowhead" id="reference">
+            <h2>Product and Operations Reference</h2>
+            <p className="note-tagline">The figures a rep is expected to know without looking them up.</p>
+          </div>
+
+          <section className="note-stage" id="ref-product">
+            <div className="note-table-wrap">
+              <table className="note-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">Detail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {PRODUCT_REFERENCE.map(([item, detail]) => (
+                    <tr key={item}>
+                      <td>{item}</td>
+                      <td>{detail}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="note-rule" style={{ marginTop: "1.1rem", marginBottom: 0 }}>
+              <span className="note-rule-label">Install timelines</span>
+              <p>
+                Vary by market and change as volume grows. Confirm the current window with operations
+                before quoting a date to a homeowner.
+              </p>
+            </div>
+          </section>
+
+          <section className="note-stage note-guard" id="ref-standing">
+            <h3 className="note-stage-title">Standing Requirements</h3>
+            <p className="note-purpose">
+              These apply at every appointment, in every market, regardless of which stage you are in.
+            </p>
+            <ul className="note-guard-list">
+              {STANDING_REQUIREMENTS.map((g, i) => (
+                <li key={i}>{g}</li>
+              ))}
+            </ul>
+            <div className="note-standard">
+              <span className="note-standard-label">Standard</span>
+              <p>
+                A signature obtained by moving past an unresolved concern is not a sale. It costs the
+                representative the commission, the company the acquisition cost and the funding
+                relationship, and the homeowner their trust in the industry.
+              </p>
+            </div>
+          </section>
         </div>
       </div>
     </main>

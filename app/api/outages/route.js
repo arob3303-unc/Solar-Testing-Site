@@ -72,7 +72,7 @@ async function fetchStateProfile(stateAbbr) {
   try {
     const r = await fetch(
       `${EIA_BASE}/electricity/state-electricity-profiles/summary/data/?${params}`,
-      { headers: { "User-Agent": "TTSS-Energy-Audit/1.0", Accept: "application/json" } }
+      { headers: { "User-Agent": "VECHTER-Home-Solutions/1.0", Accept: "application/json" } }
     );
     if (!r.ok) return { data: null, reason: `EIA API error (HTTP ${r.status})` };
     const j = await r.json();

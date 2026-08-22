@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-label="Vechter Home Solutions">
+  <rect width="512" height="512" rx="115" fill="#FCFCFC"/>
+  <g transform="translate(114.5 106) scale(0.8333)">
+    <path fill="#202730" fill-rule="evenodd" clip-rule="evenodd" d="M166 0H174L181 8V85H159V8L166 0ZM127 85H213L217 103L212 99H128L123 103L127 85ZM150 115L0 238H22V318H45V238L150 152V115ZM190 115L340 238H318V318H295V238L190 152V115ZM170 99L190 115V327L170 360L150 327V115L170 99ZM166 99H174V325L170 335L166 325V99Z"/>
+  </g>
+</svg>

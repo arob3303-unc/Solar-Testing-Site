@@ -1,8 +1,9 @@
 "use client";
 
-// Rendered only when hasSolar === true. Captures the details of the existing
-// solar system so the audit can reason about how much of the bill remains and
-// whether additional panels are worth recommending.
+// Every home reaching this audit already owns a system, so these fields always
+// render. They feed lib/diagnostics.js directly: system size and install year are
+// what make the production and degradation checks real measurements rather than
+// decoration, so an empty field costs a test row.
 
 const INVERTERS = ["SolarEdge", "Enphase", "Micro Inverters", "Other"];
 
@@ -35,14 +36,21 @@ export default function SolarFields({ values, onChange }) {
       </div>
 
       <div className="form-group">
-        <label>Solar Production (recent month, kWh)</label>
+        <label>Average Monthly Production (kWh)</label>
         <input
           type="number"
           min="0"
-          placeholder="e.g. 620"
+          placeholder="e.g. 830"
           value={values.solarProduction}
           onChange={(e) => onChange({ solarProduction: e.target.value })}
         />
+        {/* An AVERAGE month, not last month. Production swings roughly plus or minus
+            35% with the season, so a December reading scored against a year-round
+            benchmark would fail a perfectly healthy array. */}
+        <div className="q-help">
+          Annual total divided by 12, from their monitoring app. Not last month — a
+          winter reading would fail a healthy system.
+        </div>
       </div>
 
       <div className="form-group">
@@ -76,7 +84,7 @@ export default function SolarFields({ values, onChange }) {
         </div>
       </div>
 
-      {/* Asked only to score Backup Readiness honestly — a battery is NOT a product
+      {/* Asked only to score the Backup Unit check honestly — a battery is NOT a product
           we sell or recommend, and this never reaches the AI prompt. */}
       <div className="form-group full">
         <label>Do you have a solar backup battery?</label>
@@ -100,6 +108,33 @@ export default function SolarFields({ values, onChange }) {
         </div>
         <div className="q-help">
           A battery covers a few circuits for a few hours — it isn&apos;t whole-home standby power.
+        </div>
+      </div>
+
+      {/* Confirming there is no existing backup is a step in the field guide, and it
+          is the only input the Backup Unit check has. Asked plainly, scored honestly. */}
+      <div className="form-group full">
+        <label>Is there already a standby generator on the property?</label>
+        <div className="radio-group" role="radiogroup" aria-label="Existing standby generator">
+          {[
+            { text: "No standby generator", val: false },
+            { text: "Yes, one is installed", val: true },
+          ].map((opt) => (
+            <div
+              key={opt.text}
+              className={`radio-btn ${values.hasStandby === opt.val ? "active" : ""}`}
+              role="radio"
+              aria-checked={values.hasStandby === opt.val}
+              tabIndex={0}
+              onClick={() => onChange({ hasStandby: opt.val })}
+              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onChange({ hasStandby: opt.val })}
+            >
+              {opt.text}
+            </div>
+          ))}
+        </div>
+        <div className="q-help">
+          Look for a unit on a pad, an automatic transfer switch, or a propane tank serving the home.
         </div>
       </div>
 

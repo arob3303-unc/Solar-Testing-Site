@@ -1,10 +1,13 @@
 "use client";
 
-// Always rendered. Captures the resilience side of the audit — how badly an
-// outage would hurt, and what has to stay on — which drives generator sizing
-// and the backup-power pitch (recommended in every report).
+// The home profile: size, occupancy, heating and the major electrical loads.
+//
+// Nothing here mentions outages. This form runs during a SOLAR assessment, and the
+// field guide is explicit that backup does not come up until the tests are done — a
+// "how often do you lose power?" question here tips the whole appointment early.
+// The load list still drives generator sizing later; it is just asked as what the
+// home runs, not as what would be lost.
 
-const OUTAGE_LEVELS = ["Rare", "Occasional", "Frequent"];
 const HEAT_TYPES = ["Gas", "Electric"];
 const CRITICAL_LOADS = [
   "Refrigerator / Freezer",
@@ -25,30 +28,11 @@ export default function BackupFields({ values, onChange }) {
 
   return (
     <>
-      <div className="form-section">Backup Power Needs</div>
+      <div className="form-section">Your Home</div>
 
       <div className="form-group full">
-        <label>How often do you lose power?</label>
-        <div className="radio-group" role="radiogroup" aria-label="Outage frequency">
-          {OUTAGE_LEVELS.map((level) => (
-            <div
-              key={level}
-              className={`radio-btn ${values.outage === level ? "active" : ""}`}
-              role="radio"
-              aria-checked={values.outage === level}
-              tabIndex={0}
-              onClick={() => onChange({ outage: level })}
-              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onChange({ outage: level })}
-            >
-              {level}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="form-group full">
-        <label>What must stay on during an outage?</label>
-        <div className="chip-group" role="group" aria-label="Critical loads">
+        <label>Major electrical loads in the home</label>
+        <div className="chip-group" role="group" aria-label="Major electrical loads">
           {CRITICAL_LOADS.map((load) => (
             <div
               key={load}
@@ -63,6 +47,9 @@ export default function BackupFields({ values, onChange }) {
             </div>
           ))}
         </div>
+        <div className="q-help">
+          Large motors and heating elements are what drive equipment sizing later.
+        </div>
       </div>
 
       <div className="form-group">
@@ -76,8 +63,8 @@ export default function BackupFields({ values, onChange }) {
         />
       </div>
 
-      {/* Always collected: drives the location & outage-exposure report and the
-          utility rate lookup, both of which apply whether or not there's a bill. */}
+      {/* Always collected: drives the utility rate lookup, which two of the six
+          diagnostic tests depend on. */}
       <div className="form-group">
         <label>ZIP Code</label>
         <input

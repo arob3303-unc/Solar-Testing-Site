@@ -47,7 +47,7 @@ export async function POST(request) {
   }
 
   // Authoritative recommendation — computed here, not trusted from the client.
-  const rec = getRecommendation({ hasSolar: form.hasSolar, hasBill: form.hasBill });
+  const rec = getRecommendation();
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {

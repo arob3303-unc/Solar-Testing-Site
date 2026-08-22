@@ -1,6 +1,6 @@
 "use client";
 
-// Rendered only when hasBill === true. Utility + location feed the live rate
+// Always rendered — every home on a utility gets a bill. Utility + location feed the live rate
 // lookup (/api/rates); kWh and $ anchor the bill-elimination math.
 
 const STATES = [

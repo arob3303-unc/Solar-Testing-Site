@@ -112,7 +112,7 @@ export default function AiAudit({ rec, report, error, loading }) {
         <div className="cta-text">
           <strong>Ready to keep your home powered through any outage?</strong>
           <br />
-          We can size and quote a {rec ? PRODUCT_LABELS[PRODUCTS.GENERATOR] : "Generac standby generator"}
+          We can size and quote a {rec ? PRODUCT_LABELS[PRODUCTS.GENERATOR] : "22 kW whole-home standby generator"}
           {panels ? " — plus the additional panels to shrink what's left of your bill" : ""} for your exact home.
         </div>
       </div>

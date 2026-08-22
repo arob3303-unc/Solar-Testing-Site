@@ -9,6 +9,17 @@ import { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 import { projectBill, projectWithPanels, RATE_ESCALATION } from "@/lib/rates";
 
+// Chart palette, matched to the light theme tokens in app/globals.css. Kept as
+// literals because chart.js draws to a canvas and cannot read CSS variables.
+const INK_MUTED = "#7c857f";
+const GRID_LINE = "rgba(12,31,22,0.08)";
+const BRAND = "#0b4d2c";
+const BRAND_FILL = "rgba(11,77,44,0.45)";
+const GOLD = "#a67c00";
+const GOLD_FILL = "rgba(166,124,0,0.25)";
+const ALERT = "#b31d1d";
+const ALERT_FILL = "rgba(179,29,29,0.14)";
+
 const fmt = (n) => "$" + Math.round(n).toLocaleString();
 
 export default function BillProjection({ monthlyBill, showPanels, panelCount = 0, offsetFraction = 0 }) {
@@ -27,8 +38,8 @@ export default function BillProjection({ monthlyBill, showPanels, panelCount = 0
       {
         label: "Keep paying the utility",
         data: doNothing.series.map((s) => s.cumulative),
-        borderColor: "#ef4444",
-        backgroundColor: "rgba(239,68,68,0.12)",
+        borderColor: ALERT,
+        backgroundColor: ALERT_FILL,
         borderWidth: 2,
         fill: true,
         tension: 0.3,
@@ -39,8 +50,8 @@ export default function BillProjection({ monthlyBill, showPanels, panelCount = 0
       datasets.push({
         label: panelLabel,
         data: withPanels.series.map((s) => s.cumulative),
-        borderColor: "#00d4aa",
-        backgroundColor: "rgba(0,212,170,0.12)",
+        borderColor: BRAND,
+        backgroundColor: "rgba(11,77,44,0.12)",
         borderWidth: 2,
         fill: true,
         tension: 0.3,
@@ -55,14 +66,14 @@ export default function BillProjection({ monthlyBill, showPanels, panelCount = 0
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { labels: { color: "#6b7280", font: { size: 11 } } },
+          legend: { labels: { color: INK_MUTED, font: { size: 11 } } },
           tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.parsed.y)}` } },
         },
         scales: {
-          x: { ticks: { color: "#6b7280", font: { size: 10 } }, grid: { color: "rgba(255,255,255,0.04)" } },
+          x: { ticks: { color: INK_MUTED, font: { size: 10 } }, grid: { color: GRID_LINE } },
           y: {
-            ticks: { color: "#6b7280", font: { size: 10 }, callback: (v) => fmt(v) },
-            grid: { color: "rgba(255,255,255,0.04)" },
+            ticks: { color: INK_MUTED, font: { size: 10 }, callback: (v) => fmt(v) },
+            grid: { color: GRID_LINE },
           },
         },
       },

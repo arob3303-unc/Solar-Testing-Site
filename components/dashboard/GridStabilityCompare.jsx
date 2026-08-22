@@ -1,11 +1,13 @@
 "use client";
 
-// Reframe of the legacy "On Grid vs. Off Grid" comparison — now
-// "On-Grid Only vs. Whole-Energy Stability". No batteries / off-grid living:
-// the right column is the resilience of a Generac standby generator (plus, when
-// applicable, additional solar to shrink the bill).
+// "On-Grid Only vs. Whole-Energy Stability". No batteries, no off-grid living: the
+// right column is the resilience of a whole-home standby generator, plus additional
+// production when the home still has a bill to close.
+//
+// `rec` is not read here — the panel gate is passed in as `showPanels`, already
+// derived from rec.recommendPanels by the caller, so there is one gate not two.
 
-export default function GridStabilityCompare({ form, rec, panelPlan = null, showPanels = false }) {
+export default function GridStabilityCompare({ form, panelPlan = null, showPanels = false }) {
   const oldBill = Math.round(Number(form.bill) || 0);
   const utility = form.utility && form.utility !== "Unknown Utility" ? form.utility : "your utility";
   // Same gate and same count as the Backup Power Plan card and the projection chart.
@@ -21,7 +23,7 @@ export default function GridStabilityCompare({ form, rec, panelPlan = null, show
   ];
 
   const stability = [
-    `<strong>Automatic backup power</strong> from a Generac standby generator — your home stays on within seconds of an outage, for days if needed.`,
+    `<strong>Automatic backup power</strong> from a 22 kW whole-home standby generator — your home stays on within seconds of an outage, for days if needed.`,
     `Runs on <strong>natural gas or propane</strong> — no fuel to haul or store, no manual starting.`,
     panelCount
       ? `<strong>${panelCount} additional solar panels</strong> cover about ${Math.round(

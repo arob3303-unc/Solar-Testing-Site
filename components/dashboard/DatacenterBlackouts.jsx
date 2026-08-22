@@ -54,7 +54,7 @@ export default function DatacenterBlackouts() {
       <div className="dc-tie">
         <span className="dc-tie-icon">🔌</span>
         <p>
-          This is exactly why a <strong>Generac standby generator </strong> matters. It takes your home
+          This is exactly why a <strong>whole-home standby generator</strong> matters. It takes your home
           off the grid&apos;s mercy — starting automatically the second the power drops, whether the
           outage lasts minutes or days. You stop depending on whether the grid has enough left over
           after the data centers take their share.

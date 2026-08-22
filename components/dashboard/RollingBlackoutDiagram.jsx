@@ -224,8 +224,9 @@ const RBD_CSS = `
   --rbd-surface: color-mix(in srgb, currentColor 7%, transparent);
   --rbd-muted: #808896;
   --rbd-muted: color-mix(in srgb, currentColor 62%, transparent);
-  --rbd-lit: #f59e0b;
-  --rbd-off: #ef4444;
+  /* Matched to the light theme: gold = powered, deep red = shed. */
+  --rbd-lit: #a67c00;
+  --rbd-off: #b31d1d;
   background: transparent;
   color: inherit;
   font-family: inherit;
@@ -241,8 +242,8 @@ const RBD_CSS = `
 /* Priority-zoning banner — the loudest thing in the card by design. */
 .rbd-zoning {
   display: flex; align-items: flex-start; gap: 0.7rem;
-  border: 1px solid rgba(239, 68, 68, 0.55); border-left-width: 4px;
-  background: rgba(239, 68, 68, 0.10);
+  border: 1px solid rgba(179, 29, 29, 0.5); border-left-width: 4px;
+  background: rgba(179, 29, 29, 0.07);
   border-radius: 10px; padding: 0.75rem 0.95rem; margin-bottom: 0.9rem;
 }
 .rbd-zoning-icon { color: var(--rbd-off); font-size: 1.05rem; line-height: 1.3; flex-shrink: 0; }
@@ -283,16 +284,16 @@ const RBD_CSS = `
 }
 .rbd-zone:focus-visible { outline: 2px solid var(--rbd-lit); outline-offset: 2px; }
 .rbd-zone.is-on {
-  border-color: rgba(245,158,11,0.40);
-  background: rgba(245,158,11,0.07);
+  border-color: rgba(166,124,0,0.45);
+  background: rgba(166,124,0,0.08);
 }
-.rbd-zone.is-on:hover { border-color: rgba(245,158,11,0.75); }
+.rbd-zone.is-on:hover { border-color: rgba(166,124,0,0.8); }
 
 /* Off state stacks five independent cues — dashed border, hatch overlay, dimmed
    contents, unlit windows, and a literal text label — so it never reads by color
    alone, and stays legible on a light or a dark page. */
 .rbd-zone.is-off {
-  border-style: dashed; border-color: rgba(239,68,68,0.55);
+  border-style: dashed; border-color: rgba(179,29,29,0.55);
   background: var(--rbd-surface);
 }
 .rbd-zone.is-off::before {
@@ -313,7 +314,7 @@ const RBD_CSS = `
 .rbd-roof { fill: currentColor; opacity: 0.30; }
 .rbd-body { fill: currentColor; opacity: 0.13; stroke: currentColor; stroke-opacity: 0.25; stroke-width: 0.8; }
 .rbd-door { fill: currentColor; opacity: 0.22; }
-.rbd-win { fill: var(--rbd-lit); stroke: none; filter: drop-shadow(0 0 3px rgba(245,158,11,0.85)); }
+.rbd-win { fill: var(--rbd-lit); stroke: none; filter: drop-shadow(0 0 3px rgba(166,124,0,0.55)); }
 .rbd-zone.is-off .rbd-win {
   fill: none; filter: none;
   stroke: currentColor; stroke-opacity: 0.5; stroke-width: 0.9; stroke-dasharray: 2 1.6;
@@ -343,7 +344,7 @@ const RBD_CSS = `
 }
 .rbd-seq-dot.is-current {
   border-color: var(--rbd-off); color: var(--rbd-off);
-  background: rgba(239,68,68,0.12);
+  background: rgba(179,29,29,0.09);
 }
 .rbd-seq-arrow, .rbd-seq-loop { color: var(--rbd-muted); font-size: 0.7rem; opacity: 0.7; }
 .rbd-seq-loop { margin-left: 0.3rem; }
@@ -373,9 +374,9 @@ const RBD_CSS = `
 .rbd-legend-item .rbd-bolt { color: var(--rbd-lit); }
 .rbd-legend-item:last-child .rbd-bolt { color: var(--rbd-off); }
 .rbd-swatch { width: 11px; height: 11px; border-radius: 3px; border: 1px solid var(--rbd-line); }
-.rbd-swatch.is-on { background: rgba(245,158,11,0.30); border-color: rgba(245,158,11,0.6); }
+.rbd-swatch.is-on { background: rgba(166,124,0,0.35); border-color: rgba(166,124,0,0.65); }
 .rbd-swatch.is-off {
-  border-style: dashed; border-color: rgba(239,68,68,0.6);
+  border-style: dashed; border-color: rgba(179,29,29,0.6);
   background: repeating-linear-gradient(45deg, transparent 0 3px, rgba(128,138,157,0.35) 3px 4px);
 }
 .rbd-status { font-size: 0.75rem; color: var(--rbd-muted); margin: 0; }
